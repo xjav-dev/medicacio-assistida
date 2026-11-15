@@ -1,0 +1,6 @@
+# No es publiquen: identificadors dels scripts ni paquets.
+.clasp.json
+.clasp.produccio.json
+*.zip
+node_modules/
+.DS_Store

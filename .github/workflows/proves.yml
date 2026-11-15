@@ -1,0 +1,21 @@
+# Executa les proves de seguretat i de lògica a cada canvi.
+# Copyright (c) 2026 xjav-dev · SPDX-License-Identifier: EUPL-1.2
+name: Proves
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  proves:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node proves/executa-seguretat.js
+      - run: node proves/executa-logica.js

@@ -1,0 +1,126 @@
+/* app.css — Medicació assistida · app de la usuària. Lletra gran, contrast alt, un botó principal per pantalla.
+   Copyright (c) 2026 xjav-dev · SPDX-License-Identifier: EUPL-1.2 · Versió: 0.5.0 · 2026-11-15 */
+:root {
+  --verd: #1C7981; --verd-fosc: #125960; --text: #1f2326; --gris: #5b6166; --fons: #ffffff;
+  --taronja: #B35F2C; --taronja-fons: #fff1e6; --be-fons: #e8f5ef; --be: #1d6b47; --vora: #d5d9dc;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--fons); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI", Roboto, sans-serif;
+  font-size: 22px; line-height: 1.4;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+.pantalla { max-width: 640px; margin: 0 auto; padding: 16px 20px 40px; }
+.pantalla.centrat { min-height: 80vh; display: flex; flex-direction: column; justify-content: center; text-align: center; }
+h1 { font-size: 30px; font-weight: 600; margin: 8px 0 16px; color: var(--verd-fosc); }
+h2 { font-size: 26px; font-weight: 600; margin: 0 0 8px; }
+.text-mitja { font-size: 22px; margin: 8px 0; }
+.text-gran { font-size: 26px; margin: 16px 0; }
+.text-enorme { font-size: 40px; font-weight: 600; margin: 8px 0; }
+.text-pas { font-size: 28px; line-height: 1.35; margin: 16px 0 8px; font-weight: 500; }
+
+.boto {
+  display: block; width: 100%; min-height: 64px; margin: 12px 0; padding: 14px 18px;
+  font: inherit; font-size: 24px; font-weight: 600; border-radius: 16px; border: 3px solid var(--verd);
+  cursor: pointer; touch-action: manipulation;
+}
+.boto.primari { background: var(--verd); color: #fff; }
+.boto.primari:active { background: var(--verd-fosc); }
+.boto.gran { min-height: 84px; font-size: 28px; }
+.boto.secundari { background: #fff; color: var(--verd-fosc); }
+.boto.enllac { background: none; border: none; color: var(--verd-fosc); text-decoration: underline; font-weight: 500; min-height: 48px; }
+.boto:disabled { opacity: .4; cursor: default; }
+.boto:focus-visible, button:focus-visible, input:focus-visible { outline: 4px solid #f2b705; outline-offset: 2px; }
+.botons .boto + .boto { margin-top: 12px; }
+
+.targeta { border-radius: 20px; padding: 20px; margin: 16px 0; border: 3px solid var(--vora); }
+.targeta.toca { background: var(--taronja-fons); border-color: var(--taronja); }
+.targeta.toca h2 { color: var(--taronja); }
+.targeta.be { background: var(--be-fons); border-color: var(--be); }
+.targeta.be h2 { color: var(--be); }
+.targeta.practica { background: #fffbe6; border-color: #c9a400; }
+
+.avis { background: #fff6d6; border-left: 6px solid #c9a400; padding: 12px 14px; border-radius: 8px; font-size: 20px; }
+.error { color: #a1260d; font-size: 22px; font-weight: 600; }
+
+.franja-practica {
+  position: sticky; top: 0; z-index: 5; text-align: center; font-weight: 800; letter-spacing: .2em; font-size: 22px;
+  padding: 8px; color: #111;
+  background: repeating-linear-gradient(-45deg, #ffd400 0 18px, #ffe866 18px 36px);
+  border-bottom: 3px solid #111;
+}
+.avis-practica { background: #111; color: #ffd400; padding: 12px 14px; border-radius: 10px; font-weight: 700; font-size: 22px; }
+
+.barra-pas { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.boto-sortir { background: none; border: 2px solid var(--vora); border-radius: 12px; font: inherit; font-size: 18px; padding: 8px 12px; color: var(--gris); min-height: 44px; }
+.progres { font-size: 20px; color: var(--gris); font-weight: 600; }
+.barra-progres { height: 10px; background: #e6e9eb; border-radius: 5px; margin: 10px 0 4px; overflow: hidden; }
+.barra-progres div { height: 100%; background: var(--verd); }
+.boto-repetir { background: #eef6f7; color: var(--verd-fosc); border: 2px solid var(--verd); border-radius: 12px; font: inherit; font-size: 20px; padding: 8px 16px; min-height: 48px; }
+.accions { margin-top: 12px; }
+
+.compte-caixa { text-align: center; margin: 12px 0; }
+.compte {
+  width: 180px; height: 180px; margin: 0 auto; border-radius: 50%; border: 10px solid var(--verd);
+  display: flex; align-items: center; justify-content: center; font-size: 80px; font-weight: 700; color: var(--verd-fosc);
+  font-variant-numeric: tabular-nums;
+}
+.compte.acabat { border-color: var(--be); color: var(--be); }
+.compte-etiqueta { font-size: 20px; color: var(--gris); margin-top: 8px; }
+
+.camp-codi {
+  display: block; width: 100%; font-size: 48px; letter-spacing: .3em; text-align: center; padding: 14px;
+  border: 3px solid var(--verd); border-radius: 16px; margin: 16px 0; font-variant-numeric: tabular-nums;
+}
+
+.cos-contenidor { background: #f7fafb; border-radius: 16px; padding: 8px; }
+svg.cos { width: 100%; height: auto; display: block; }
+.cos-etiqueta { font-size: 15px; fill: var(--gris); font-family: inherit; }
+.zona rect { fill: #fff; stroke: var(--verd); stroke-width: 2; stroke-dasharray: 4 3; }
+.zona text { font-size: 17px; font-weight: 700; fill: var(--verd-fosc); font-family: inherit; pointer-events: none; }
+.zona-bloquejada rect { fill: #d9dcde; stroke: #9aa0a4; }
+.zona-bloquejada text { fill: #8a9094; }
+.zona-marcada rect { fill: #DA7E45; stroke: #7a3c14; stroke-width: 3; stroke-dasharray: none; animation: batec 1.4s ease-in-out infinite; }
+.zona-marcada text { fill: #fff; }
+.zona-triable { cursor: pointer; }
+@keyframes batec { 50% { opacity: .55; } }
+@media (prefers-reduced-motion: reduce) { .zona-marcada rect { animation: none; } }
+.zona-nom { font-size: 26px; font-weight: 700; color: var(--taronja); text-align: center; margin: 12px 0; }
+.llista-zones { display: grid; gap: 8px; }
+.boto-zona { font: inherit; font-size: 20px; text-align: left; padding: 12px; border-radius: 12px; border: 2px solid var(--vora); background: #fff; min-height: 52px; }
+.boto-zona.triada { border-color: var(--taronja); background: var(--taronja-fons); font-weight: 700; }
+.boto-zona:disabled { color: #9aa0a4; background: #f0f1f2; }
+
+.camera-caixa { background: #000; border-radius: 16px; overflow: hidden; }
+.video-camera { width: 100%; max-height: 60vh; display: block; object-fit: contain; }
+.foto-revisio { width: 100%; border-radius: 16px; border: 3px solid var(--vora); }
+.final .boto { margin-top: 32px; }
+
+/* 0.2.0 — il·lustració d'una sola zona, felicitacions i ratxa */
+.pegat-pols { transform-box: fill-box; transform-origin: center; animation: pols 1.6s ease-in-out infinite; }
+@keyframes pols { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.18); opacity: .45; } }
+@media (prefers-reduced-motion: reduce) { .pegat-pols { animation: none; } }
+.cos-contenidor { max-width: 360px; margin: 0 auto; background: none; padding: 0; }
+.cos-etiqueta { font-size: 16px; }
+.ratxa { font-size: 22px; font-weight: 700; color: #B35F2C; margin: 8px 0; }
+.fita { font-size: 26px; font-weight: 700; color: #125960; background: #fff6d6; border: 3px solid #F2B705; border-radius: 16px; padding: 12px; margin: 12px 0; }
+.felicitacio { animation: salta .7s ease-out; }
+@keyframes salta { 0% { transform: scale(.6); opacity: 0; } 70% { transform: scale(1.08); opacity: 1; } 100% { transform: scale(1); } }
+.confeti { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 50; }
+.confeti i { position: absolute; top: -20px; width: 10px; height: 16px; border-radius: 2px; animation-name: cau; animation-timing-function: linear; animation-fill-mode: forwards; }
+@keyframes cau { to { top: 110%; transform: translateX(40px) rotate(720deg); } }
+@media (prefers-reduced-motion: reduce) { .felicitacio { animation: none; } }
+.cos-contenidor svg.cos { width: 100%; height: 40vh; max-height: 360px; }
+
+/* 0.5.0 — telèfon de suport, seguiment i instruccions de l'alarma */
+.targeta.seguiment { background: #eef6f7; border-color: #1C7981; }
+.cita { font-size: 20px; color: #5b6166; font-style: italic; margin: 0 0 8px; }
+.barra-seguiment { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; background: #eef6f7; border: 2px solid #1C7981; border-radius: 12px; padding: 8px 12px; margin: 8px 0; font-size: 18px; }
+.boto-petit { font: inherit; font-size: 18px; font-weight: 600; background: #1C7981; color: #fff; border: none; border-radius: 10px; padding: 8px 12px; min-height: 44px; }
+.boto.petit { font-size: 18px; min-height: 44px; }
+.instruccions ol { padding-left: 24px; }
+.instruccions li { margin: 12px 0; font-size: 20px; }
+.instruccions .horari { font-size: 22px; font-weight: 700; color: #125960; }
+.enllac-copiable { display: block; word-break: break-all; user-select: all; -webkit-user-select: all; font-size: 15px; background: #fff; padding: 6px; border-radius: 6px; margin-top: 6px; }
