@@ -9,11 +9,18 @@
  * Copyright (c) 2026 xjav-dev
  * Llicència: EUPL-1.2 — vegeu LLICENCIA.txt
  * SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.5.0 · 2026-11-15
+ * Versió: 0.7.0 · 2026-11-15
  */
 
 function instalacio() {
   if (!esPropietari_()) throw new Error('Només el propietari pot instal·lar, des de l\'editor d\'Apps Script.');
+  var r = instalaNucli_();
+  console.log('Instal·lació feta. ' + (r.fets.length ? 'Canvis: ' + r.fets.join('; ') : 'Ja estava tot instal·lat.'));
+  console.log('Administrador: ' + r.correu + '. Entra al panell amb aquest correu.');
+}
+
+/** Feina de la instal·lació (idempotent). Retorna {fets, correu}. */
+function instalaNucli_() {
   var correu = Session.getActiveUser().getEmail();
   var llibre = llibre_();
   var fets = [];
@@ -78,16 +85,69 @@ function instalacio() {
 
   CacheService.getScriptCache().remove('config');
   anotaAuditoria_(correu, 'instal·lació', fets.join('; ') || 'sense canvis');
-  console.log('Instal·lació feta. ' + (fets.length ? 'Canvis: ' + fets.join('; ') : 'Ja estava tot instal·lat.'));
-  console.log('Administrador: ' + correu + '. Entra al panell amb aquest correu.');
+  return { fets: fets, correu: correu };
 }
 
 /** Marca aquesta instal·lació com a producció (treu la franja de desenvolupament del panell). */
 function passaAProduccio() {
   if (!esPropietari_()) throw new Error('Només el propietari, des de l\'editor.');
+  marcaProduccio_();
+  console.log('Entorn: producció.');
+}
+
+function marcaProduccio_() {
   PropertiesService.getScriptProperties().setProperty('ENTORN', 'produccio');
   anotaAuditoria_(Session.getActiveUser().getEmail(), 'passa a producció', '');
-  console.log('Entorn: producció.');
+}
+
+// ---- Menú de la Hoja de càlcul (les mateixes accions que des de l'editor) ----
+
+function onOpen(e) {
+  SpreadsheetApp.getUi().createMenu('Medicación asistida')
+    .addItem('Instalar o actualizar', 'menuInstala')
+    .addItem('Hacer una copia de seguridad', 'menuCopia')
+    .addItem('Dirección de la aplicación web', 'menuAdreca')
+    .addSeparator()
+    .addItem('Pasar a producción', 'menuProduccio')
+    .addToUi();
+}
+
+function avisMenu_(titol, text) {
+  SpreadsheetApp.getUi().alert(titol, text, SpreadsheetApp.getUi().ButtonSet.OK);
+}
+
+function menuInstala() {
+  if (!esPropietari_()) { avisMenu_('Medicación asistida', 'No se ha podido identificar su cuenta.'); return; }
+  var r = instalaNucli_();
+  avisMenu_('Instalación hecha', (r.fets.length ? 'Cambios: ' + r.fets.join('; ') + '.' : 'Ya estaba todo instalado.') +
+    '\n\nAdministrador: ' + r.correu + '. Entre en el panel con este email.\n\nRecuerde: si ha cambiado el código, publique una versión nueva en Implementar → Gestionar implementaciones.');
+}
+
+function menuCopia() {
+  if (!esPropietari_()) { avisMenu_('Medicación asistida', 'No se ha podido identificar su cuenta.'); return; }
+  var c = fesCopia_(Session.getActiveUser().getEmail(), 'manual');
+  avisMenu_('Copia hecha', c.nom + '\n\nEstá en la carpeta «Còpies medicació», al lado de esta Hoja.');
+}
+
+function menuAdreca() {
+  if (!esPropietari_()) { avisMenu_('Medicación asistida', 'No se ha podido identificar su cuenta.'); return; }
+  var url = '';
+  try { url = ScriptApp.getService().getUrl() || ''; } catch (e) { url = ''; }
+  var panel = llegeixConfig_().urlPanel;
+  avisMenu_('Dirección de la aplicación web',
+    (url ? 'Dirección (/exec) del servidor:\n' + url + '\n\n' : 'Todavía no hay ninguna implementación como aplicación web.\n\n') +
+    'Compruébela en Implementar → Gestionar implementaciones → Aplicación web. Es la que se pega la primera vez en el panel; ' +
+    'no la publique.' + (panel ? '\n\nEnlace del panel guardado en Ajustes:\n' + panel : ''));
+}
+
+function menuProduccio() {
+  if (!esPropietari_()) { avisMenu_('Medicación asistida', 'No se ha podido identificar su cuenta.'); return; }
+  var ui = SpreadsheetApp.getUi();
+  var r = ui.alert('Pasar a producción', 'Se quitará la franja «Entorno de desarrollo» del panel. Si quiere empezar de cero, ' +
+    'borre antes el historial de pruebas desde el panel (Copias → Empezar de cero). ¿Continuar?', ui.ButtonSet.YES_NO);
+  if (r !== ui.Button.YES) return;
+  marcaProduccio_();
+  avisMenu_('Producción', 'Entorno: producción.');
 }
 
 /** Activador cada 5 minuts: avisos de retard i vinculació de Telegram. */

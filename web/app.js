@@ -2,7 +2,7 @@
  * app.js — Medicació assistida · app de la usuària (web instal·lable a l'iPhone).
  * Pantalles: vinculació, inici, assistent pas a pas i final. Cua sense connexió.
  * Copyright (c) 2026 xjav-dev · SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.6.0 · 2026-11-15
+ * Versió: 0.7.0 · 2026-11-15
  */
 (function () {
   'use strict';
@@ -42,20 +42,31 @@
   var Veu = {
     audios: {},
     actual: null,
-    tria: function () {
-      if (!('speechSynthesis' in window)) return null;
+    /** Veus del telèfon per a l'idioma, de més a menys qualitat (premium > millorada > d'Espanya > compacta). */
+    disponibles: function () {
+      if (!('speechSynthesis' in window)) return [];
       var pref = st.idioma === 'ca' ? 'ca' : 'es';
-      var veus = speechSynthesis.getVoices().filter(function (v) { return v.lang && v.lang.toLowerCase().indexOf(pref) === 0; });
-      var bona = veus.filter(function (v) { return /premium|enhanced|mejorad|millorad|siri/i.test(v.name); })[0];
-      var espanya = veus.filter(function (v) { return /ES$/i.test(v.lang); })[0];
-      return bona || espanya || veus[0] || null;
+      var nota = function (v) {
+        var id = (v.voiceURI || '') + ' ' + v.name;
+        return (/premium/i.test(id) ? 40 : 0) + (/enhanced|mejorad|millorad/i.test(id) ? 30 : 0) +
+          (/compact/i.test(id) ? -10 : 0) + (/[-_]ES$/i.test(v.lang) ? 5 : 0) + (v.localService ? 1 : 0);
+      };
+      return speechSynthesis.getVoices().filter(function (v) { return v.lang && v.lang.toLowerCase().indexOf(pref) === 0; })
+        .sort(function (a, b) { return nota(b) - nota(a); });
     },
+    /** La veu triada per la família en aquest telèfon (si encara hi és) o la millor disponible. */
+    tria: function () {
+      var veus = Veu.disponibles();
+      var triada = C.magatzem.get('meda_veu');
+      return veus.filter(function (v) { return v.voiceURI === triada; })[0] || veus[0] || null;
+    },
+    velocitat: function () { return Number(C.magatzem.get('meda_velocitat')) || 0.9; },
     tts: function (text, enAcabar) {
       if (!('speechSynthesis' in window) || !text) { if (enAcabar) enAcabar(); return; }
       var u = new SpeechSynthesisUtterance(text);
       u.lang = st.idioma === 'ca' ? 'ca-ES' : 'es-ES';
       var v = Veu.tria(); if (v) u.voice = v;
-      u.rate = 0.9;
+      u.rate = Veu.velocitat();
       if (enAcabar) u.onend = enAcabar;
       speechSynthesis.speak(u);
     },
@@ -92,6 +103,7 @@
   // ---------------- Utilitats de pantalla ----------------
   function mostra(contingut) {
     C.buida(arrel);
+    if (st.pantalla !== 'final') document.querySelectorAll('.confeti').forEach(function (x) { x.remove(); });
     var demo = st.pantalla !== 'vincula' && ((st.canvi && st.canvi.mode === 'DEMO') || (!st.canvi && st.estat && st.estat.estat === 'DEMO'));
     document.body.classList.toggle('mode-practica', !!demo);
     if (demo) arrel.appendChild(h('div', { class: 'franja-practica', role: 'note' }, esSuport() ? T('franjaSuport') : T('practica')));
@@ -117,6 +129,11 @@
     return nomDia + ' ' + T('aLes') + ' ' + hora;
   }
 
+  function diaCurt(clau) {
+    var d = C.deClau(clau);
+    return d ? T('dies')[d.getDay() === 0 ? 7 : d.getDay()] + ' ' + d.getDate() + '/' + (d.getMonth() + 1) : '';
+  }
+
   function horaDe(clau) { var d = C.deClau(clau); return d ? C.dos(d.getHours()) + ':' + C.dos(d.getMinutes()) : ''; }
 
   function confirma(text, siAccio, noAccio) {
@@ -138,7 +155,13 @@
     var llista = cua();
     var resultat = 'enviat', darrera = null;
     while (llista.length) {
-      try { darrera = await C.api('apiCompletaCanvi', llista[0], st.testimoni); llista.shift(); desaCua(llista); }
+      // Cada element és {op, dades}; els de versions anteriors (només dades) són canvis acabats.
+      var item = llista[0].op ? llista[0] : { op: 'apiCompletaCanvi', dades: llista[0] };
+      try {
+        var resposta = await C.api(item.op, item.dades, st.testimoni);
+        if (item.op === 'apiCompletaCanvi') darrera = resposta;
+        llista.shift(); desaCua(llista);
+      }
       catch (e) {
         if (e.codi === 'XARXA' || e.codi === 'OCUPAT' || e.codi === 'SENSE_USUARI') { resultat = 'xarxa'; break; }
         llista.shift(); desaCua(llista); resultat = 'error';
@@ -296,7 +319,27 @@
       meds.map(function (m) { return h('p', { class: 'horari' }, '⏰ ' + T('alarmaHorari', { nom: m.nom, dies: nomsDies(m.dies), hora: m.hora })); }),
       h('ol', {}, T('alarmaPassos').map(function (t, i) { return h('li', {}, t, i === 1 ? copia : null, i === 1 ? resultat : null); })),
       h('p', { class: 'avis' }, T('alarmaNota')),
-      boto(T('tornar'), function () { st.pantalla = 'inici'; render(); }, 'secundari')));
+      seccioVeu(),
+      boto(T('tornar'), function () { Veu.atura(); st.pantalla = 'inici'; render(); }, 'secundari')));
+  }
+
+  /** Per a la família: triar la veu i la velocitat d'aquest telèfon i provar-les. */
+  function seccioVeu() {
+    var veus = Veu.disponibles();
+    var actual = Veu.tria();
+    var tria = h('select', { class: 'camp-select', 'aria-label': T('veuTria') },
+      veus.map(function (v) { return h('option', { value: v.voiceURI }, v.name + ' (' + v.lang + ')'); }));
+    if (actual) tria.value = actual.voiceURI;
+    tria.onchange = function () { C.magatzem.set('meda_veu', tria.value); };
+    var vel = h('select', { class: 'camp-select', 'aria-label': T('veuVelocitat') },
+      h('option', { value: '0.8' }, T('veuLenta')), h('option', { value: '0.9' }, T('veuNormal')), h('option', { value: '1' }, T('veuRapida')));
+    vel.value = String(Veu.velocitat());
+    vel.onchange = function () { C.magatzem.set('meda_velocitat', vel.value); };
+    return h('section', { class: 'targeta' },
+      h('h2', {}, '🔊 ' + T('veuTitol')),
+      veus.length ? [h('label', { class: 'camp-etiqueta' }, T('veuTria')), tria, h('label', { class: 'camp-etiqueta' }, T('veuVelocitat')), vel,
+        boto(T('veuProva'), function () { Veu.atura(); Veu.tts(T('veuFrase')); }, 'secundari')] : h('p', {}, T('veuCap')),
+      h('p', { class: 'ajuda-app' }, T('veuConsell')));
   }
 
   // ---------------- Assistent ----------------
@@ -310,7 +353,7 @@
         med: med, tipus: tipus, mode: r.mode, dataProgramada: r.dataProgramada, index: 0,
         desfas: r.araMs - Date.now(), inici: C.clau(new Date()), idClient: C.uuid(),
         zones: r.zones.filter(function (z) { return noms[z.codi]; }).map(function (z) { return Object.assign({ nom: noms[z.codi] }, z); }),
-        zona: r.zonaSuggerida, capLliure: r.capZonaDisponible, triantZona: false,
+        zona: r.zonaSuggerida, capLliure: r.capZonaDisponible, triantZona: false, diesRepeticio: Number(r.diesRepeticioZona) || 0,
         anteriorRetirat: tipus === 'caiguda' ? '' : null, foto: null, motiu: '', subpas: ''
       };
       Veu.precarrega(med.passos);
@@ -344,6 +387,14 @@
     confirma(T('sortirConfirma'), function () {
       informaProgres('sortit', '');
       aturaCamera(); Veu.atura(); alliberaWakeLock();
+      var c = st.canvi;
+      if (!esSuport()) {
+        // La sortida queda a l'historial (es desa a la cua per si no hi ha connexió).
+        desaCua(cua().concat([{ op: 'apiRegistraSortida', dades: {
+          medicament: c.med.id, tipus: c.tipus, mode: c.mode, dataProgramada: c.dataProgramada,
+          pas: c.index + 1, total: c.med.passos.length, inici: c.inici, idClient: 's' + c.idClient } }]));
+        enviaCua().catch(function () { /* s'enviarà més tard */ });
+      }
       st.canvi = null; st.pantalla = 'inici'; render();
     }, function () { render(); });
   }
@@ -434,15 +485,29 @@
     cont.appendChild(h('div', { class: 'cos-contenidor' }, svg));
     cont.appendChild(h('p', { class: 'zona-nom' }, T('zonaToca', { codi: c.zona, nom: nomZona(c.zona) })));
     if (c.capLliure) cont.appendChild(h('p', { class: 'avis' }, T('zonaCapLliure')));
+    var lliures = c.zones.filter(function (z) { return z.disponible !== false; });
+    var usades = c.zones.filter(function (z) { return z.disponible === false; });
+    if (!c.triantZona && lliures.length) {
+      cont.appendChild(h('p', { class: 'zones-possibles' }, '✅ ' + T('zonesPossibles') + ' ' + lliures.map(function (z) { return z.codi; }).join(' · ')));
+    }
     if (c.triantZona) {
+      // Zones viables (es poden triar) i, a part, les usades fa poc (bloquejades, amb la data en què tornen a estar lliures).
       cont.appendChild(h('p', { class: 'text-mitja' }, T('zonaTria')));
-      var llista = h('div', { class: 'llista-zones' });
-      c.zones.forEach(function (z) {
-        llista.appendChild(h('button', { type: 'button', class: 'boto-zona' + (z.codi === c.zona ? ' triada' : ''),
-          disabled: z.disponible === false, onclick: function () { c.zona = z.codi; render(); Veu.parla(T('zonaToca', { codi: z.codi, nom: z.nom })); } },
-        z.codi + ' · ' + z.nom));
-      });
-      cont.appendChild(llista);
+      var tria = function (z) { c.zona = z.codi; render(); Veu.parla(T('zonaToca', { codi: z.codi, nom: z.nom })); };
+      cont.appendChild(h('h3', { class: 'titol-zones' }, '✅ ' + T('zonesLliures')));
+      cont.appendChild(h('div', { class: 'llista-zones' }, lliures.map(function (z) {
+        return h('button', { type: 'button', class: 'boto-zona' + (z.codi === c.zona ? ' triada' : ''), onclick: function () { tria(z); } },
+          h('strong', {}, z.codi + ' · ' + z.nom), h('span', { class: 'zona-data' }, z.darrerUs ? T('zonaUsada', { quan: diaCurt(z.darrerUs) }) : T('zonaMai')));
+      })));
+      if (usades.length) {
+        cont.appendChild(h('h3', { class: 'titol-zones' }, '⛔ ' + T('zonesUsades')));
+        cont.appendChild(h('div', { class: 'llista-zones' }, usades.map(function (z) {
+          var lliure = C.deClau(z.darrerUs); if (lliure) lliure.setDate(lliure.getDate() + c.diesRepeticio);
+          return h('div', { class: 'boto-zona bloquejada', 'aria-disabled': 'true' },
+            h('strong', {}, z.codi + ' · ' + z.nom),
+            h('span', { class: 'zona-data' }, T('zonaUsada', { quan: diaCurt(z.darrerUs) }) + (lliure ? ' · ' + T('zonaLliureEl', { quan: diaCurt(C.clau(lliure)) }) : '')));
+        })));
+      }
     }
     cont.appendChild(boto(T('zonaDacord'), seguent, 'primari gran'));
     if (!c.triantZona && !c.capLliure) cont.appendChild(boto(T('zonaAltra'), function () { c.triantZona = true; render(); }, 'secundari'));
@@ -569,7 +634,7 @@
       anteriorRetirat: c.anteriorRetirat || '', zona: teZona ? c.zona : '', inici: c.inici,
       foto: c.foto || '', senseFotoMotiu: c.foto ? '' : c.motiu
     };
-    desaCua(cua().concat([dades]));
+    desaCua(cua().concat([{ op: 'apiCompletaCanvi', dades: dades }]));
     var r = await enviaCua();
     var titol, text, ratxa = 0, fita = '';
     if (r.resultat === 'enviat') {

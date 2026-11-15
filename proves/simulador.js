@@ -10,7 +10,7 @@ process.env.TZ = 'Europe/Madrid';
 
 function creaEntorn(opcions) {
   opcions = opcions || {};
-  const estat = { correus: [], telegram: [], activadors: [], propietari: 'propietari@exemple.cat', usuariActiu: '' };
+  const estat = { correus: [], telegram: [], activadors: [], alertes: [], propietari: 'propietari@exemple.cat', usuariActiu: '' };
   const toBytes = (buf) => Array.from(buf).map((b) => (b > 127 ? b - 256 : b));
   const fromBytes = (arr) => Buffer.from(arr.map((b) => b & 0xff));
   const textDe = (v) => (Array.isArray(v) ? fromBytes(v) : Buffer.from(String(v), 'utf8'));
@@ -97,7 +97,7 @@ function creaEntorn(opcions) {
           moveTo: (c) => { meta.pare = c.getId(); }, getParents: () => iter(meta.pare ? [fitxers.get(meta.pare).carpeta] : [arrel]) };
       }
       const x = fitxers.get(id); if (!x || !x.blob) throw new Error('no trobat');
-      return { getBlob: () => x.blob, getParents: () => iter([fitxers.get(x.pare).carpeta]) };
+      return { getBlob: () => x.blob, getParents: () => iter([fitxers.get(x.pare).carpeta]), setTrashed: (v) => { x.paperera = !!v; } };
     }
   };
   function iter(llista) { let i = 0; return { hasNext: () => i < llista.length, next: () => llista[i++] }; }
@@ -132,6 +132,11 @@ function creaEntorn(opcions) {
     JSON, Math, Date, Object, Array, String, Number, Error, RegExp, isFinite, Buffer,
     SpreadsheetApp: {
       getActiveSpreadsheet: () => llibre, flush: () => {},
+      getUi: () => ({
+        createMenu: (nom) => { const m = { nom, items: [], addItem: (t, f) => { m.items.push(f); return m; }, addSeparator: () => m, addToUi: () => { estat.menu = m; } }; return m; },
+        alert: (titol, text) => { estat.alertes.push({ titol, text }); return 'YES'; },
+        ButtonSet: { OK: 'OK', YES_NO: 'YES_NO' }, Button: { YES: 'YES', NO: 'NO' }
+      }),
       create: (nom) => { const id = 'llibre' + (++nId); fitxers.set(id, { nom }); return creaLlibre(id); },
       openById: (id) => { if (!llibres.has(id)) throw new Error('no trobat'); return llibres.get(id); }
     },
@@ -152,6 +157,7 @@ function creaEntorn(opcions) {
       return { getContentText: () => JSON.stringify({ ok: true, result }), getResponseCode: () => 200 };
     } },
     ScriptApp: {
+      getService: () => ({ getUrl: () => 'https://script.google.com/macros/s/AKfycbPROVA/exec' }),
       getProjectTriggers: () => estat.activadors.map((a) => ({ getUniqueId: () => a.id, getHandlerFunction: () => a.fn })),
       newTrigger: (fn) => ({ timeBased: () => ({ everyMinutes: () => ({ create: () => estat.activadors.push({ id: 'act' + estat.activadors.length, fn }) }) }) })
     },

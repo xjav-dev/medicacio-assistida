@@ -106,6 +106,7 @@ env.estat.correus.length = 0;
 r = env.post('apiCompletaCanvi', { medicament: medId, tipus: 'programat', mode: 'DEMO', idClient: 'demo1', anteriorRetirat: 'si', zona: 'A', foto: FOTO }, tDis);
 comprova(r.ok && env.estat.correus.length === 1 && /PRÁCTICA/.test(env.estat.correus[0].body), 'pràctica registrada i avisada com a pràctica', r);
 comprova(/(lunes|martes|miércoles|jueves|viernes|sábado|domingo) \d\d\/\d\d/.test(env.estat.correus[0].body), 'el missatge porta el nom del dia', env.estat.correus[0].body);
+comprova(env.post('apiIniciaCanvi', { medicament: medId, tipus: 'programat' }, tDis).dades.zonaSuggerida === 'B', 'en pràctica, les zones compten les pràctiques (A acabada de fer → B)');
 
 // ---------- Pas a ACTIU amb un horari d'ara ----------
 const cfgP = env.post('apiConfig', {}, tAdmin).dades;
@@ -153,6 +154,15 @@ g.activadorRevisio(act);
 comprova(env.estat.correus.length === 1, 'després de fer-lo, l\'activador ja no avisa');
 comprova(env.post('apiIniciaCanvi', { medicament: medId, tipus: 'programat' }, tDis).error.codi === 'SENSE_PENDENT', 'no es pot començar un canvi que no toca');
 
+// Sortida sense acabar
+env.estat.correus.length = 0;
+r = env.post('apiRegistraSortida', { medicament: medId, tipus: 'programat', mode: 'REAL', dataProgramada: prog, pas: 4, total: 9, idClient: 'sort1' }, tDis);
+const regSort = g.llegeixFull_('Registre').find((x) => x.idClient === 'sort1');
+comprova(r.ok && regSort && regSort.tipus === 'sortida' && regSort.estat === 'abandonat' && regSort.notes === 'pas 4 de 9', 'la sortida queda al registre', regSort);
+comprova(env.estat.correus.length === 1 && /↩️/.test(env.estat.correus[0].body) && /paso 4 de 9/.test(env.estat.correus[0].body), 'la sortida en real s\'avisa', env.estat.correus.map((x) => x.body));
+comprova(env.post('apiRegistraSortida', { medicament: medId, tipus: 'programat', mode: 'REAL', pas: 4, total: 9, idClient: 'sort1' }, tDis).dades.desat === false, 'una sortida reenviada no es duplica');
+comprova(env.post('apiEstatApp', {}, tDis).dades.medicaments[0].pendent === null, 'una sortida no altera el calendari');
+
 // Pegat caigut
 r = env.post('apiIniciaCanvi', { medicament: medId, tipus: 'caiguda' }, tDis);
 comprova(r.ok && r.dades.zonaSuggerida === 'B', 'pegat caigut: proposa B (A acabada d\'usar)', r.dades);
@@ -163,7 +173,7 @@ comprova(e.medicaments[0].pendent === null, 'el pegat caigut no mou el calendari
 
 // Historial i fotos
 const h = env.post('apiHistorial', { mode: 'REAL' }, tAdmin).dades;
-comprova(h.length === 2 && h.some((x) => x.teFoto), 'historial real amb 2 registres', h);
+comprova(h.length === 3 && h.some((x) => x.teFoto) && h.some((x) => x.tipus === 'sortida'), 'historial real amb 2 canvis i una sortida', h);
 const ambFoto = h.find((x) => x.teFoto);
 r = env.post('apiFoto', { id: ambFoto.id }, tAdmin);
 comprova(r.ok && r.dades.b64 === FOTO, 'la foto es pot veure des del panell');
@@ -263,6 +273,23 @@ env.llibres.get(idCopia).getSheetByName('Registre').appendRow(['rX', medId, 'REA
 const x2 = env.post('apiPreparaImportacio', { id: idCopia }, tAdmin);
 comprova(x2.error && /files/.test(x2.error.missatge), 'es rebutja una còpia amb files que no quadren', x2.error);
 
+// Esborrar l'historial
+comprova(env.post('apiPreparaEsborrat', { abast: 'tot' }, tAna).error.codi === 'SENSE_PERMIS', 'una supervisora no pot esborrar l\'historial');
+const nReals = g.llegeixFull_('Registre').filter((x) => x.mode === 'REAL').length;
+const nDemo = g.llegeixFull_('Registre').filter((x) => x.mode === 'DEMO').length;
+r = env.post('apiPreparaEsborrat', { abast: 'practiques', fotos: true }, tAdmin);
+comprova(r.ok && r.dades.registres === nDemo && r.dades.reals === 0 && /REINICIALITZA$/.test(r.dades.frase), 'preparar l\'esborrat de les pràctiques: recomptes i frase', r.dades);
+comprova(env.post('apiEsborraHistorial', { testimoni: r.dades.testimoni, frase: 'no' }, tAdmin).error.codi === 'DADES', 'sense la frase no s\'esborra');
+comprova(env.post('apiEsborraHistorial', { testimoni: r.dades.testimoni, frase: r.dades.frase }, tAdmin).error.codi === 'TESTIMONI', 'el testimoni de l\'esborrat és d\'un sol ús');
+comprova(g.llegeixFull_('Registre').filter((x) => x.mode === 'DEMO').length === nDemo, 'els intents fallits no esborren res');
+const p2e = env.post('apiPreparaEsborrat', { abast: 'practiques', fotos: true }, tAdmin).dades;
+r = env.post('apiEsborraHistorial', { testimoni: p2e.testimoni, frase: p2e.frase.toLowerCase() }, tAdmin);
+const quedenDemo = g.llegeixFull_('Registre').filter((x) => x.mode === 'DEMO').length;
+const quedenReals = g.llegeixFull_('Registre').filter((x) => x.mode === 'REAL').length;
+comprova(r.ok && quedenDemo === 0 && quedenReals === nReals && r.dades.fotos >= 1, 'esborra les pràctiques, conserva els reals i envia les fotos a la paperera', r.dades);
+comprova(env.post('apiCopies', {}, tAdmin).dades.some((c) => c.motiu === 'abans d\'esborrar l\'historial'), 'abans d\'esborrar es fa una còpia');
+comprova(g.llegeixFull_('Auditoria').some((a) => a.accio === 'esborra l\'historial'), 'l\'esborrat queda a l\'auditoria');
+
 // Enllaç de la drecera
 const idDis0 = env.post('apiConfig', {}, tAdmin).dades.dispositius[0].id;
 comprova(env.post('apiEnllacDispositiu', { id: idDis0 }, tAna).error.codi === 'SENSE_PERMIS', 'una supervisora no pot obtenir l\'enllaç de la drecera');
@@ -275,6 +302,20 @@ const idDis = env.post('apiConfig', {}, tAdmin).dades.dispositius[0].id;
 env.post('apiDesvinculaDispositiu', { id: idDis }, tAdmin);
 comprova(env.post('apiEstatApp', {}, tDis).error.codi === 'SENSE_USUARI', 'el dispositiu desvinculat ja no funciona');
 comprova(env.post('apiAuditoria', {}, tAdmin).dades.length > 5, 'l\'auditoria registra els canvis');
+
+// ---------- Menú de la Hoja de càlcul ----------
+g.onOpen();
+comprova(env.estat.menu && env.estat.menu.items.join(',') === 'menuInstala,menuCopia,menuAdreca,menuProduccio', 'el menú de la Hoja té les accions d\'instal·lació', env.estat.menu);
+env.estat.usuariActiu = '';
+g.menuInstala();
+comprova(/No se ha podido/.test(env.estat.alertes[env.estat.alertes.length - 1].text), 'el menú no instal·la si no identifica el compte');
+env.estat.usuariActiu = env.estat.propietari;
+g.menuInstala(); g.menuAdreca(); g.menuCopia();
+const al = env.estat.alertes.slice(-3);
+comprova(/Ya estaba todo instalado/.test(al[0].text) && /AKfycbPROVA/.test(al[1].text) && /MEDA_copia/.test(al[2].text), 'instal·lar, adreça i còpia des del menú', al);
+g.menuProduccio();
+comprova(env.props.get('ENTORN') === 'produccio', 'passar a producció des del menú');
+env.estat.usuariActiu = '';
 
 // ---------- Migració de l'esquema 1 al 2 ----------
 const env2 = creaEntorn({ silenci: true });

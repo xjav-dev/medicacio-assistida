@@ -2,7 +2,7 @@
  * panel.js — Medicació assistida · panell de supervisors i administradors.
  * Tot es fa per l'API: ningú no obre la Hoja de càlcul.
  * Copyright (c) 2026 xjav-dev · SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.6.0 · 2026-11-15
+ * Versió: 0.7.0 · 2026-11-15
  */
 (function () {
   'use strict';
@@ -126,7 +126,8 @@
 
   function insignia(r) {
     var mapa = {
-      completat: ['ok', '✅ Hecho'], 'en curs': ['pendent', '⏳ Empezado'], pendent: ['pendent', '⏳ Pendiente'], 'no fet': ['mal', '❌ No hecho']
+      completat: ['ok', '✅ Hecho'], 'en curs': ['pendent', '⏳ Empezado'], pendent: ['pendent', '⏳ Pendiente'], 'no fet': ['mal', '❌ No hecho'],
+      abandonat: ['sortida', '↩️ Salió sin terminar']
     };
     var m = mapa[r.estat] || ['', r.estat];
     var extra = r.estat !== 'completat' && r.alertat ? ' · 🔴 alerta' : r.estat !== 'completat' && r.avisat ? ' · ⚠️ avisado' : '';
@@ -360,13 +361,24 @@
     var des = h('input', { type: 'date', value: st.hist.des });
     var fins = h('input', { type: 'date', value: st.hist.fins });
     var resultat = h('div', {});
-    var carrega = async function () {
-      st.hist = { mode: mode.value, des: des.value, fins: fins.value };
-      C.buida(resultat).appendChild(h('p', { class: 'carregant' }, 'Cargando…'));
-      var files = await crida('apiHistorial', st.hist);
+    // Filtres: per defecte només els canvis de parche (els reemplaçaments). La resta, en activar-los.
+    st.filtres = st.filtres || { canvis: true, sortides: false, avisos: false };
+    var fC = casella('Cambios de parche', st.filtres.canvis), fS = casella('Salidas sin terminar', st.filtres.sortides),
+      fA = casella('Pendientes y no realizados', st.filtres.avisos);
+    var passaFiltre = function (x) {
+      if (x.estat === 'completat') return st.filtres.canvis;
+      if (x.estat === 'abandonat') return st.filtres.sortides;
+      return st.filtres.avisos;
+    };
+    var totes = [];
+    var pinta = function () {
+      st.filtres = { canvis: fC.input.checked, sortides: fS.input.checked, avisos: fA.input.checked };
+      var files = totes.filter(passaFiltre);
       st.histFiles = files;
       C.buida(resultat);
-      if (!files.length) { resultat.appendChild(h('p', { class: 'suau' }, 'No hay registros en estas fechas.')); return; }
+      var amagades = totes.length - files.length;
+      if (amagades) resultat.appendChild(h('p', { class: 'ajuda' }, amagades + ' registro(s) ocultos por los filtros.'));
+      if (!files.length) { resultat.appendChild(h('p', { class: 'suau' }, 'No hay registros que mostrar.')); return; }
       var taula = h('table', { class: 'taula' }, h('thead', {}, h('tr', {},
         ['Previsto', 'Hecho', 'Estado', 'Tipo', 'Anterior quitado', 'Zona', 'Foto'].map(function (t) { return h('th', { scope: 'col' }, t); }))));
       var tbody = h('tbody', {});
@@ -375,7 +387,7 @@
           h('td', { 'data-et': 'Previsto' }, x.dataProgramada ? dataHumana(x.dataProgramada) : '—'),
           h('td', { 'data-et': 'Hecho' }, x.fi ? dataHumana(x.fi) : '—'),
           h('td', { 'data-et': 'Estado' }, insignia(x)),
-          h('td', { 'data-et': 'Tipo' }, x.tipus === 'caiguda' ? 'Parche caído' : 'Programado'),
+          h('td', { 'data-et': 'Tipo' }, x.tipus === 'caiguda' ? 'Parche caído' : x.tipus === 'sortida' ? 'Salida · ' + String(x.notes || '').replace(/^pas (\d+) de (\d+)/, 'paso $1 de $2').replace('pegat caigut', 'parche caído') : 'Programado'),
           h('td', { 'data-et': 'Anterior quitado' }, x.anteriorRetirat === 'si' ? 'Sí' : x.anteriorRetirat === 'no portava' ? '⚠️ No llevaba' : x.anteriorRetirat === 'caiguda' ? '(se cayó)' : '—'),
           h('td', { 'data-et': 'Zona' }, x.zona ? x.zona + ' · ' + x.nomZona : '—'),
           h('td', { 'data-et': 'Foto' }, x.teFoto ? boto('📷 Ver', function () { veuFoto(x); }, 'petit') : (x.senseFotoMotiu ? 'Sin foto: ' + x.senseFotoMotiu : '—'))));
@@ -383,11 +395,19 @@
       taula.appendChild(tbody);
       resultat.appendChild(h('div', { class: 'taula-scroll' }, taula));
     };
+    var carrega = async function () {
+      st.hist = { mode: mode.value, des: des.value, fins: fins.value };
+      C.buida(resultat).appendChild(h('p', { class: 'carregant' }, 'Cargando…'));
+      totes = await crida('apiHistorial', st.hist);
+      pinta();
+    };
+    [fC, fS, fA].forEach(function (f) { f.input.onchange = pinta; });
     var bCarrega = boto('Ver', null, 'primari');
     bCarrega.onclick = ambEspera(bCarrega, carrega);
     var bImprimeix = boto('🖨 Imprimir diario', null, 'secundari');
     bImprimeix.onclick = ambEspera(bImprimeix, async function () { await carrega(); imprimeixDiari(); });
     cont.appendChild(h('section', { class: 'filtres' }, camp('Ver', mode), camp('Desde', des), camp('Hasta', fins), bCarrega, bImprimeix));
+    cont.appendChild(h('fieldset', { class: 'filtres-tipus' }, h('legend', {}, 'Mostrar'), fC.el, fS.el, fA.el));
     cont.appendChild(resultat);
     await carrega();
   }
@@ -404,7 +424,7 @@
         h('td', {}, d ? DIES[d.getDay() === 0 ? 7 : d.getDay()] + ' ' + C.dos(d.getDate()) + '/' + C.dos(d.getMonth() + 1) + '/' + d.getFullYear() : ''),
         h('td', {}, d ? C.dos(d.getHours()) + ':' + C.dos(d.getMinutes()) : ''),
         h('td', {}, x.zona || ''),
-        h('td', {}, { completat: 'Hecho', 'no fet': 'No hecho', pendent: 'Pendiente', 'en curs': 'Empezado' }[x.estat] || x.estat)));
+        h('td', {}, { completat: 'Hecho', 'no fet': 'No hecho', pendent: 'Pendiente', 'en curs': 'Empezado', abandonat: 'Salió sin terminar (' + String(x.notes || '').replace(/^pas (\d+) de (\d+).*/, 'paso $1 de $2') + ')' }[x.estat] || x.estat)));
     });
     taula.appendChild(tb);
     document.body.appendChild(h('section', { id: 'impressio' },
@@ -680,7 +700,7 @@
         h('li', {}, 'Botón Compartir → «Añadir a pantalla de inicio».'),
         h('li', {}, 'Abra la app desde el icono (no desde Safari).'),
         h('li', {}, 'Escriba el código de vinculación de 6 cifras (aquí abajo).'),
-        h('li', {}, 'En el teléfono de la usuaria: «Instrucciones de la alarma», al pie de la app, para conectar la alarma del iPhone.'))));
+        h('li', {}, 'En el teléfono de la usuaria: «Para la familia: alarma y voz», al pie de la app, para conectar la alarma del iPhone y elegir la voz.'))));
 
     var lliste = st.cfg.dispositius.map(function (d) {
       var accions = [];
@@ -736,7 +756,7 @@
       var enllac = urlApp + '#t=' + r.testimoni; // urlApp ja porta ?s=…
       var camp2 = h('textarea', { rows: '4', readonly: true }); camp2.value = enllac;
       modal('Enlace para el atajo del iPhone', h('div', {},
-        h('p', {}, 'Normalmente no hace falta: en el iPhone de la usuaria, «Instrucciones de la alarma» copia este enlace directamente. Úselo solo si lo prepara desde otro aparato.'),
+        h('p', {}, 'Normalmente no hace falta: en el iPhone de la usuaria, «Para la familia: alarma y voz» copia este enlace directamente. Úselo solo si lo prepara desde otro aparato.'),
         camp2,
         h('p', { class: 'ajuda' }, 'No lo comparta: quien lo tenga puede registrar cambios en nombre del teléfono. Si se pierde, desvincule el teléfono y vuelva a vincularlo.')),
       [{ text: 'Copiar', classe: 'primari', accio: async function () { await copia(enllac, camp2); return false; } }, { text: 'Cerrar' }]);
@@ -788,7 +808,8 @@
   }
 
   // ---------- Còpies de seguretat ----------
-  var MOTIUS = { manual: 'Manual', 'abans d\'importar': 'Antes de restaurar', 'abans de migrar': 'Antes de migrar' };
+  var MOTIUS = { manual: 'Manual', 'abans d\'importar': 'Antes de restaurar', 'abans de migrar': 'Antes de migrar',
+    'abans d\'esborrar l\'historial': 'Antes de borrar el historial' };
 
   async function vistaCopies(cont) {
     var fes = boto('Hacer una copia ahora', null, 'primari');
@@ -800,6 +821,7 @@
       h('p', {}, 'Guarda la medicación, el historial, los ajustes, las personas y los teléfonos en una Hoja nueva de Drive (carpeta «Còpies medicació»).'),
       h('p', { class: 'ajuda' }, 'Las fotos y las grabaciones no se duplican: siguen en sus carpetas de Drive. Las copias contienen datos de salud: no las comparta. No se borra ninguna automáticamente.'),
       fes));
+    cont.appendChild(targetaEsborrat());
     var copies = await crida('apiCopies', {});
     if (!copies.length) { cont.appendChild(h('p', { class: 'suau' }, 'Todavía no hay ninguna copia.')); return; }
     var taula = h('table', { class: 'taula' }, h('thead', {}, h('tr', {},
@@ -816,6 +838,36 @@
     });
     taula.appendChild(tb);
     cont.appendChild(h('section', { class: 'targeta' }, h('h2', {}, 'Copias guardadas'), h('div', { class: 'taula-scroll' }, taula)));
+  }
+
+  /** Empezar de cero: borrar las prácticas o todo el historial (con copia previa, frase y 60 s). */
+  function targetaEsborrat() {
+    var abast = h('select', {}, h('option', { value: 'practiques' }, 'Solo las prácticas'), h('option', { value: 'tot' }, 'Todo el historial (reales y prácticas)'));
+    var fotos = casella('Mover también sus fotos a la papelera de Drive', true);
+    var prepara = boto('Preparar el borrado…', null, 'perill');
+    prepara.onclick = ambEspera(prepara, async function () {
+      var r = await crida('apiPreparaEsborrat', { abast: abast.value, fotos: fotos.input.checked });
+      var frase = h('input', { type: 'text', autocomplete: 'off', autocapitalize: 'characters' });
+      var compte = h('p', { class: 'suau' });
+      var fi = Date.now() + r.segons * 1000;
+      var t = setInterval(function () {
+        var x = Math.max(0, Math.round((fi - Date.now()) / 1000));
+        compte.textContent = x ? 'Tiene ' + x + ' segundos para confirmar.' : 'Ha caducado: cierre y vuelva a empezar.';
+        if (!x || !document.body.contains(compte)) clearInterval(t);
+      }, 500);
+      modal('Borrar el historial', h('div', {},
+        h('p', {}, 'Se borrarán ' + r.registres + ' registros (' + r.reals + ' reales y ' + r.practiques + ' prácticas)' +
+          (r.fotos ? ' y ' + r.ambFoto + ' fotos irán a la papelera de Drive (30 días para recuperarlas).' : '. Las fotos se quedan en Drive.')),
+        h('p', {}, 'Antes se hará una copia de seguridad automática: desde «Copias guardadas» se puede volver atrás. Las personas, los teléfonos, la medicación y el registro de cambios no se tocan.'),
+        camp('Para confirmar, escriba: ' + r.frase, frase), compte),
+      [{ text: 'Cancelar' }, { text: 'Borrar', classe: 'perill', accio: async function () {
+        var x = await crida('apiEsborraHistorial', { testimoni: r.testimoni, frase: frase.value });
+        avis(x.esborrats + ' registros borrados. Copia previa: ' + x.previa); render();
+      } }]);
+    });
+    return h('section', { class: 'targeta perill-zona' }, h('h2', {}, '🧹 Empezar de cero (borrar historial)'),
+      h('p', {}, 'Para pasar a producción después de las pruebas. Borra los cambios registrados; no toca la configuración.'),
+      camp('Qué borrar', abast), fotos.el, prepara);
   }
 
   async function restaura(copia) {

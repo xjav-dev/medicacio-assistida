@@ -1,7 +1,7 @@
 /**
  * textos-app.js — Medicació assistida · textos de l'app de la usuària (castellà i català).
  * Copyright (c) 2026 xjav-dev · SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.6.0 · 2026-11-15
+ * Versió: 0.7.0 · 2026-11-15
  */
 window.TEXTOS_APP = {
   es: {
@@ -18,7 +18,15 @@ window.TEXTOS_APP = {
     ellaVa: 'Ella va por el paso {pas} de {total}',
     anarPas: 'Ir a ese paso',
     motiuSuport: 'práctica de apoyo',
-    alarma: '⏰ Instrucciones de la alarma (para la familia)',
+    alarma: '⏰ Para la familia: alarma y voz',
+    veuTitol: 'Voz de este teléfono',
+    veuTria: 'Voz',
+    veuVelocitat: 'Velocidad',
+    veuLenta: 'Lenta', veuNormal: 'Normal', veuRapida: 'Más rápida',
+    veuProva: '▶ Probar la voz',
+    veuFrase: 'Hola. Así sonarán las instrucciones del parche.',
+    veuCap: 'Este teléfono no tiene voces en este idioma.',
+    veuConsell: 'Si suena robótica, lo mejor es grabar los pasos con la voz de la familia desde el panel (Medicación → Grabar). El iPhone no deja usar las voces de Siri ni las voces descargadas desde una web.',
     alarmaTitol: 'Conectar con la alarma del iPhone',
     alarmaHorari: '{nom}: {dies} a las {hora}',
     alarmaPassos: [
@@ -64,6 +72,12 @@ window.TEXTOS_APP = {
     comprovat: 'Comprobado',
     zonaToca: 'Zona {codi}: {nom}',
     zonaDacord: 'De acuerdo',
+    zonesPossibles: 'Zonas posibles hoy:',
+    zonesLliures: 'Zonas que puede usar',
+    zonesUsades: 'Usadas hace poco: no las use',
+    zonaUsada: 'usada el {quan}',
+    zonaMai: 'todavía no usada',
+    zonaLliureEl: 'libre desde el {quan}',
     zonaAltra: 'Elegir otra zona',
     zonaTria: 'Toque la zona que quiera. Las grises se usaron hace poco.',
     zonaCapLliure: 'Todas las zonas se han usado hace poco. Use la marcada.',
@@ -139,7 +153,15 @@ window.TEXTOS_APP = {
     ellaVa: 'Ella va pel pas {pas} de {total}',
     anarPas: 'Anar a aquest pas',
     motiuSuport: 'pràctica de suport',
-    alarma: '⏰ Instruccions de l\'alarma (per a la família)',
+    alarma: '⏰ Per a la família: alarma i veu',
+    veuTitol: 'Veu d\'aquest telèfon',
+    veuTria: 'Veu',
+    veuVelocitat: 'Velocitat',
+    veuLenta: 'Lenta', veuNormal: 'Normal', veuRapida: 'Més ràpida',
+    veuProva: '▶ Provar la veu',
+    veuFrase: 'Hola. Així sonaran les instruccions del pegat.',
+    veuCap: 'Aquest telèfon no té veus en aquest idioma.',
+    veuConsell: 'Si sona robòtica, el millor és gravar els passos amb la veu de la família des del panell (Medicació → Gravar). L\'iPhone no deixa fer servir les veus de Siri ni les veus baixades des d\'una web.',
     alarmaTitol: 'Connectar amb l\'alarma de l\'iPhone',
     alarmaHorari: '{nom}: {dies} a les {hora}',
     alarmaPassos: [
@@ -185,6 +207,12 @@ window.TEXTOS_APP = {
     comprovat: 'Comprovat',
     zonaToca: 'Zona {codi}: {nom}',
     zonaDacord: 'D\'acord',
+    zonesPossibles: 'Zones possibles avui:',
+    zonesLliures: 'Zones que podeu fer servir',
+    zonesUsades: 'Fetes servir fa poc: no les feu servir',
+    zonaUsada: 'feta servir el {quan}',
+    zonaMai: 'encara no feta servir',
+    zonaLliureEl: 'lliure des del {quan}',
     zonaAltra: 'Triar una altra zona',
     zonaTria: 'Toqueu la zona que vulgueu. Les grises s\'han fet servir fa poc.',
     zonaCapLliure: 'Totes les zones s\'han fet servir fa poc. Feu servir la marcada.',

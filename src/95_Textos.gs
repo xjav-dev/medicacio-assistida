@@ -8,7 +8,7 @@
  * Copyright (c) 2026 xjav-dev
  * Llicència: EUPL-1.2 — vegeu LLICENCIA.txt
  * SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.4.0 · 2026-11-15
+ * Versió: 0.7.0 · 2026-11-15
  */
 
 var TEXTOS_ = {
@@ -23,6 +23,7 @@ var TEXTOS_ = {
     pendent: '⚠️ {nom}: «{med}» de las {hora} sigue pendiente ({min} min de retraso).',
     alerta: '🔴 {nom}: «{med}» de las {hora} NO se ha hecho todavía ({min} min de retraso). Conviene llamarla.',
     noFet: '❌ {nom}: «{med}» del {dia} a las {hora} no se registró.',
+    sortida: '↩️ {nom}: ha salido de «{med}» en el paso {pas} de {total} sin terminar.',
     assumpteCodi: 'Código de acceso — Medicación asistida',
     cosCodi: 'Tu código para entrar en el panel es: {codi}\nCaduca en {min} minutos.\n{url}\nSi no lo has pedido tú, ignora este mensaje.',
     telegramVinculat: '✅ Listo, {nom}. Recibirás aquí los avisos de la medicación.',
@@ -42,6 +43,7 @@ var TEXTOS_ = {
     pendent: '⚠️ {nom}: «{med}» de les {hora} encara està pendent ({min} min de retard).',
     alerta: '🔴 {nom}: «{med}» de les {hora} encara NO s\'ha fet ({min} min de retard). Convé trucar-li.',
     noFet: '❌ {nom}: «{med}» del {dia} a les {hora} no es va registrar.',
+    sortida: '↩️ {nom}: ha sortit de «{med}» al pas {pas} de {total} sense acabar.',
     assumpteCodi: 'Codi d\'accés — Medicació assistida',
     cosCodi: 'El teu codi per entrar al panell és: {codi}\nCaduca d\'aquí a {min} minuts.\n{url}\nSi no l\'has demanat tu, ignora aquest missatge.',
     telegramVinculat: '✅ Fet, {nom}. Rebràs aquí els avisos de la medicació.',

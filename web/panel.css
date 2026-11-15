@@ -1,4 +1,4 @@
-/* panel.css — Medicació assistida · panell de la família. Copyright (c) 2026 xjav-dev · SPDX-License-Identifier: EUPL-1.2 · Versió: 0.5.0 · 2026-11-15 */
+/* panel.css — Medicació assistida · panell de la família. Copyright (c) 2026 xjav-dev · SPDX-License-Identifier: EUPL-1.2 · Versió: 0.7.0 · 2026-11-15 */
 :root { --verd: #1C7981; --verd-fosc: #125960; --text: #1f2326; --suau: #5b6166; --vora: #d5d9dc; --taronja: #B35F2C; --vermell: #a1260d; --be: #1d6b47; }
 * { box-sizing: border-box; }
 body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif; font-size: 17px; line-height: 1.45; color: var(--text); background: #f4f6f7; }
@@ -98,3 +98,7 @@ summary { cursor: pointer; font-weight: 600; min-height: 32px; }
 .telefon select { font: inherit; padding: 6px; border-radius: 8px; margin-right: 4px; }
 .targeta.ara { border-left: 6px solid var(--verd); }
 .centrat { text-align: center; }
+
+.filtres-tipus { display: flex; flex-wrap: wrap; gap: 0 12px; background: #fff; }
+.insignia.sortida { background: #eef0f2; color: #4a4f54; }
+.perill-zona { border-left: 6px solid var(--vermell); }

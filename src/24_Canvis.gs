@@ -8,7 +8,7 @@
  * Copyright (c) 2026 xjav-dev
  * Llicència: EUPL-1.2 — vegeu LLICENCIA.txt
  * SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.5.0 · 2026-11-15
+ * Versió: 0.7.0 · 2026-11-15
  */
 
 // ---- Medicaments ----
@@ -132,9 +132,12 @@ function iniciaCanvi_(ctx, dades) {
       }
     });
   }
-  var sug = suggereixZona_(med.zones, reals, ara, med.diesRepeticioZona);
+  // Les zones es calculen amb els canvis del mateix mode: en pràctica compten les pràctiques, en real els reals.
+  var perZones = mode === 'REAL' ? reals : registresDe_(med.id, 'DEMO');
+  var sug = suggereixZona_(med.zones, perZones, ara, med.diesRepeticioZona);
   return { mode: mode, tipus: tipus, dataProgramada: dataProgramada, araMs: ara.getTime(),
-    zonaSuggerida: sug.suggerida, capZonaDisponible: sug.capDisponible, zones: sug.zones };
+    zonaSuggerida: sug.suggerida, capZonaDisponible: sug.capDisponible, zones: sug.zones,
+    diesRepeticioZona: med.diesRepeticioZona };
 }
 
 function completaCanvi_(ctx, dades) {
@@ -207,6 +210,36 @@ function completaCanvi_(ctx, dades) {
   }
   return { fi: resultat.registre.fi, zona: resultat.registre.zona, repetit: !!resultat.repetit,
     ratxa: mode === 'REAL' && tipus === 'programat' ? ratxa_(registresDe_(med.id, 'REAL')) : 0 };
+}
+
+// ---- Sortides sense acabar ----
+
+/** Desa que la usuària ha sortit de l'assistent sense acabar el canvi. Els telèfons de suport no ho desen. */
+function registraSortida_(ctx, d) {
+  if (ctx.tipus === 'suport') return { desat: false };
+  var cfg = llegeixConfig_();
+  var med = medicament_(d.medicament);
+  if (!med) throw errorApp_('DADES', 'Medicament desconegut.');
+  var idClient = String(d.idClient || '').replace(/[^\w-]/g, '').slice(0, 40);
+  if (!idClient) throw errorApp_('DADES', 'Falta l\'identificador.');
+  var mode = d.mode === 'REAL' ? 'REAL' : 'DEMO';
+  var pas = Math.max(0, Math.min(99, Number(d.pas) || 0)), total = Math.max(0, Math.min(99, Number(d.total) || 0));
+  var caiguda = d.tipus === 'caiguda';
+  var r = ambBloqueig_(function () {
+    var repetit = llegeixFull_('Registre').filter(function (x) { return x.idClient === idClient; })[0];
+    if (repetit) return null;
+    return afegeixFila_('Registre', {
+      id: nouId_('r'), medicament: med.id, mode: mode, tipus: 'sortida',
+      dataProgramada: mode === 'REAL' && !caiguda ? String(d.dataProgramada || '').slice(0, 16) : '',
+      inici: String(d.inici || '').slice(0, 19), fi: araText_(), estat: 'abandonat', dispositiu: ctx.id, idClient: idClient,
+      notes: 'pas ' + pas + ' de ' + total + (caiguda ? ' · pegat caigut' : '')
+    });
+  });
+  if (r && mode === 'REAL') {
+    var idioma = cfg.idiomaAvisos || 'es';
+    notifica_(text_(idioma, 'sortida', { nom: cfg.nomUsuaria || text_(idioma, 'laUsuaria'), med: nomMed_(med, idioma), pas: pas, total: total }));
+  }
+  return { desat: !!r };
 }
 
 // ---- Seguiment en directe (per acompanyar per telèfon) ----
@@ -329,7 +362,7 @@ function registrePublic_(r, med, idioma) {
     id: r.id, medicament: r.medicament, nomMed: med ? nomMed_(med, idioma) : r.medicament, mode: r.mode, tipus: r.tipus,
     dataProgramada: r.dataProgramada, inici: r.inici, fi: r.fi, estat: r.estat, anteriorRetirat: r.anteriorRetirat,
     zona: r.zona, nomZona: med && r.zona ? nomZona_(med, r.zona, idioma) : '', teFoto: !!r.fotoId,
-    senseFotoMotiu: r.senseFotoMotiu, avisat: r.avisat, alertat: r.alertat
+    senseFotoMotiu: r.senseFotoMotiu, avisat: r.avisat, alertat: r.alertat, notes: r.notes
   };
 }
 

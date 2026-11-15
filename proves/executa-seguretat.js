@@ -8,7 +8,12 @@ const ENTRADES = {
   doPost: ['RUTES_', 'PETICIO_'],
   instalacio: ['esPropietari_'],
   passaAProduccio: ['esPropietari_'],
-  activadorRevisio: ['esActivadorPropi_']
+  activadorRevisio: ['esActivadorPropi_'],
+  onOpen: ['getUi'],
+  menuInstala: ['esPropietari_'],
+  menuCopia: ['esPropietari_'],
+  menuAdreca: ['esPropietari_'],
+  menuProduccio: ['esPropietari_']
 };
 let fallades = 0, n = 0;
 const comprova = (ok, desc, det) => { n++; if (!ok) fallades++; console.log((ok ? '✓ ' : '✗ ') + desc + (ok ? '' : '  → ' + JSON.stringify(det))); };

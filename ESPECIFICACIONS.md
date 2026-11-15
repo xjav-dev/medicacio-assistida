@@ -1,6 +1,6 @@
 # Especificaciones — Medicación asistida (`medicacio-assistida`, código `MEDA`)
 
-Versión del documento: 0.6.0 · 2026-11-15
+Versión del documento: 0.7.0 · 2026-11-15
 
 ## 1. Objetivo
 
@@ -78,6 +78,15 @@ anterior?», es obligatorio y queda registrado.
   enlace de la app y su código QR.
 - **CU-14 Instrucciones de la alarma** dentro de la app de la usuaria, con el
   horario y el botón para copiar el enlace para Atajos.
+- **CU-15 Salidas.** Salir del asistente sin terminar crea un registro
+  `tipus=sortida, estat=abandonat` con el paso; en uso real se avisa. No cambia
+  el calendario ni la racha. Los teléfonos de apoyo no lo registran.
+- **CU-16 Filtros del historial.** Por defecto solo los cambios hechos; salidas y
+  pendientes/no realizados se muestran al activarlos.
+- **CU-17 Empezar de cero.** Borrar prácticas o todo el historial (destructivo):
+  copia previa, frase escrita, testimonio de 60 s, fotos a la papelera, auditoría.
+- **CU-18 Menú de la Hoja** con las acciones de instalación (solo la cuenta que
+  la abre y está identificada).
 - **CU-09 Sin conexión.** Si al terminar no hay conexión, el cambio se guarda en
   el iPhone y se envía al recuperarla.
 
@@ -161,6 +170,10 @@ Secretos en Script Properties: `SECRET_HMAC`, `TELEGRAM_TOKEN`,
   de este. El manifest no fija `start_url` para que el icono de inicio conserve
   `?s=`; **pendiente de comprobar en un iPhone real** (si no se conservara, la app
   pide pegar el enlace). La misma web sirve a cualquier familia con su servidor.
+- **DD-021 Voz.** Desde una web, el iPhone solo expone sus voces básicas: no las
+  de Siri ni las descargadas (mejoradas/premium). Se elige la mejor disponible y la
+  familia puede fijarla por teléfono; para una voz natural, la solución son las
+  grabaciones de la familia (ya existentes por paso).
 - **DD-010 Idiomas.** App de la usuaria en castellano o catalán (lo elige el
   administrador). Panel en castellano.
 

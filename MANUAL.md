@@ -1,6 +1,6 @@
 # Manual — Medicación asistida
 
-Versión 0.6.0 · 2026-11-15
+Versión 0.7.0 · 2026-11-15
 
 ## 1. Qué es
 
@@ -28,6 +28,10 @@ Versión 0.6.0 · 2026-11-15
    acceso*: **cualquier usuario**. Copie la URL que acaba en `/exec`.
 4. Cuando todo funcione con datos reales, ejecute **`passaAProduccio`** (quita la
    franja «Entorno de desarrollo» del panel).
+
+**Menú en la Hoja.** Al abrir la Hoja aparece el menú **Medicación asistida** con
+las mismas acciones: *Instalar o actualizar*, *Hacer una copia de seguridad*,
+*Dirección de la aplicación web* (enseña la URL `/exec`) y *Pasar a producción*.
 
 ### 2.2 Web (app y panel)
 
@@ -74,9 +78,13 @@ enlace (y un QR) que ya lleva el servidor. No lo publique.
    - **De apoyo**: siempre en práctica, para acompañarla por teléfono. Cualquier
      supervisor puede vincular el suyo. Lo que se haga en él no se avisa.
 3. La primera foto pedirá permiso para la cámara: pulse «Permitir».
-4. Voz más natural: *Ajustes → Accesibilidad → Contenido leído → Voces*, elija
-   Español (España) o Catalán y descargue una voz «mejorada» (Mónica, Jorge,
-   Montserrat…).
+4. **Voz:** en la app, al pie, **«Para la familia: alarma y voz»** deja elegir la
+   voz y la velocidad de ese teléfono y probarlas. El iPhone no deja que una web use
+   las voces de Siri ni las descargadas, así que la voz del teléfono suena algo
+   robótica. Para una voz natural, grabe los pasos con la voz de la familia: panel
+   → **Medicación → Pasos → 🎙 Grabar** (mejor desde el iPhone, en Safari), un audio
+   por paso y por idioma, y **Guardar cambios**. Los pasos sin grabación usan la voz
+   del teléfono.
 
 ### 2.5 Alarma y Atajos (el recordatorio)
 
@@ -84,7 +92,7 @@ Una web no puede hacer sonar alarmas; se usa la alarma del iPhone:
 
 1. **Reloj → Alarmas → +**: la misma hora que la medicación, *Repetir* los dos días
    de cambio, *Etiqueta*: «Parche». Así suena hasta que ella la para.
-2. En el iPhone de la usuaria, al pie de la app: **«Instrucciones de la alarma»**.
+2. En el iPhone de la usuaria, al pie de la app: **«Para la familia: alarma y voz»**.
    Enseña el horario y estos pasos, y el botón **«Copiar enlace para Atajos»**
    (también está en el panel: **Teléfonos → Enlace para el atajo**).
 3. **Atajos → Automatización → Nueva automatización → Alarma → «Se detiene»** →
@@ -165,6 +173,12 @@ teléfono y se envía solo al volver la conexión.
 - **Teléfonos** (todos): enlace y QR de la app; vincular (los supervisores, solo de
   apoyo). Los administradores cambian el tipo, desvinculan y obtienen el enlace para el atajo.
 - **Ajustes** (administradores) y **Registro**: quién cambió qué y cuándo.
+- **Historial:** por defecto solo enseña los cambios de parche. Marque «Salidas sin
+  terminar» o «Pendientes y no realizados» para ver el resto.
+- **Copias → Empezar de cero** (administradores): borra las prácticas o todo el
+  historial para pasar a producción. Pide escribir `MEDICACIÓ ASSISTIDA REINICIALITZA`
+  en 60 segundos y antes hace una copia (se puede volver atrás restaurándola). Las
+  fotos borradas van a la papelera de Drive (30 días).
 - **Copias** (administradores): «Hacer una copia ahora» guarda medicación, historial,
   ajustes, personas y teléfonos en una Hoja nueva de la carpeta «Còpies medicació».
   «Restaurar…» enseña qué cambiará y pide escribir `MEDICACIÓ ASSISTIDA IMPORTA` en

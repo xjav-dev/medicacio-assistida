@@ -8,7 +8,7 @@
  * Copyright (c) 2026 xjav-dev
  * Llicència: EUPL-1.2 — vegeu LLICENCIA.txt
  * SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.5.0 · 2026-11-15
+ * Versió: 0.7.0 · 2026-11-15
  */
 
 /** Operacions que es poden cridar sense sessió (protegides per codis d'un sol ús). */
@@ -20,14 +20,15 @@ var A_ = ['administrador'];
 
 /** Rols que poden fer cada operació amb sessió. */
 var ROLS_ = {
-  apiEstatApp: D_, apiIniciaCanvi: D_, apiCompletaCanvi: D_, apiProgres: D_,
+  apiEstatApp: D_, apiIniciaCanvi: D_, apiCompletaCanvi: D_, apiProgres: D_, apiRegistraSortida: D_,
   apiSeguiment: ['dispositiu', 'supervisor', 'administrador'],
   apiAudio: ['dispositiu', 'supervisor', 'administrador'],
   apiJo: S_, apiAcceptaAvis: S_, apiSurt: S_, apiResum: S_, apiHistorial: S_, apiFoto: S_, apiConfig: S_,
   apiEnllacTelegram: S_, apiComprovaTelegram: S_, apiProvaMissatge: S_,
   apiDesaEstat: A_, apiDesaConfig: A_, apiDesaMedicament: A_, apiDesaSupervisor: A_, apiTreuSupervisor: A_,
   apiCodiVinculacio: S_, apiDesaDispositiu: A_, apiEnllacDispositiu: A_, apiDesvinculaDispositiu: A_, apiDesaAudio: A_, apiAuditoria: A_,
-  apiCopies: A_, apiFesCopia: A_, apiPreparaImportacio: A_, apiImporta: A_
+  apiCopies: A_, apiFesCopia: A_, apiPreparaImportacio: A_, apiImporta: A_,
+  apiPreparaEsborrat: A_, apiEsborraHistorial: A_
 };
 
 var PETICIO_ = null;
@@ -115,6 +116,10 @@ function apiIniciaCanvi() {
 
 function apiCompletaCanvi() {
   return executa_('apiCompletaCanvi', function (ctx, d) { return completaCanvi_(ctx, d); });
+}
+
+function apiRegistraSortida() {
+  return executa_('apiRegistraSortida', function (ctx, d) { return registraSortida_(ctx, d); });
 }
 
 function apiProgres() {
@@ -266,6 +271,14 @@ function apiImporta() {
   return executa_('apiImporta', function (ctx, d) { return importaCopia_(ctx, d); });
 }
 
+function apiPreparaEsborrat() {
+  return executa_('apiPreparaEsborrat', function (ctx, d) { return preparaEsborrat_(ctx, d); });
+}
+
+function apiEsborraHistorial() {
+  return executa_('apiEsborraHistorial', function (ctx, d) { return esborraHistorial_(ctx, d); });
+}
+
 /** Taula d'operacions que accepta doPost (mai es crida una funció pel seu nom sense passar per aquí). */
 var RUTES_ = {
   apiDemanaCodi: apiDemanaCodi, apiEntra: apiEntra, apiVinculaDispositiu: apiVinculaDispositiu,
@@ -276,5 +289,6 @@ var RUTES_ = {
   apiDesaEstat: apiDesaEstat, apiDesaConfig: apiDesaConfig, apiDesaMedicament: apiDesaMedicament,
   apiDesaSupervisor: apiDesaSupervisor, apiTreuSupervisor: apiTreuSupervisor, apiCodiVinculacio: apiCodiVinculacio,
   apiEnllacDispositiu: apiEnllacDispositiu, apiDesvinculaDispositiu: apiDesvinculaDispositiu, apiDesaAudio: apiDesaAudio, apiAuditoria: apiAuditoria,
-  apiCopies: apiCopies, apiFesCopia: apiFesCopia, apiPreparaImportacio: apiPreparaImportacio, apiImporta: apiImporta
+  apiCopies: apiCopies, apiFesCopia: apiFesCopia, apiPreparaImportacio: apiPreparaImportacio, apiImporta: apiImporta,
+  apiPreparaEsborrat: apiPreparaEsborrat, apiEsborraHistorial: apiEsborraHistorial, apiRegistraSortida: apiRegistraSortida
 };

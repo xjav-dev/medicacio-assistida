@@ -1,5 +1,5 @@
 /* app.css — Medicació assistida · app de la usuària. Lletra gran, contrast alt, un botó principal per pantalla.
-   Copyright (c) 2026 xjav-dev · SPDX-License-Identifier: EUPL-1.2 · Versió: 0.6.0 · 2026-11-15 */
+   Copyright (c) 2026 xjav-dev · SPDX-License-Identifier: EUPL-1.2 · Versió: 0.7.0 · 2026-11-15 */
 :root {
   --verd: #1C7981; --verd-fosc: #125960; --text: #1f2326; --gris: #5b6166; --fons: #ffffff;
   --taronja: #B35F2C; --taronja-fons: #fff1e6; --be-fons: #e8f5ef; --be: #1d6b47; --vora: #d5d9dc;
@@ -129,3 +129,13 @@ svg.cos { width: 100%; height: auto; display: block; }
 .enganxa { margin-top: 24px; font-size: 18px; }
 .enganxa summary { color: #125960; text-decoration: underline; cursor: pointer; min-height: 44px; }
 .camp-enllac { display: block; width: 100%; font: inherit; font-size: 16px; padding: 10px; border: 2px solid #1C7981; border-radius: 10px; margin: 8px 0; }
+
+/* 0.7.0 — zones viables, veu */
+.zones-possibles { text-align: center; font-size: 20px; color: #1d6b47; font-weight: 600; margin: 4px 0 8px; }
+.titol-zones { font-size: 20px; margin: 16px 0 6px; }
+.boto-zona { display: flex; flex-direction: column; gap: 2px; }
+.boto-zona .zona-data { font-size: 16px; color: #5b6166; font-weight: 400; }
+.boto-zona.bloquejada { background: #f0f1f2; color: #8a9094; border-style: dashed; }
+.camp-select { display: block; width: 100%; font: inherit; font-size: 18px; padding: 10px; border: 2px solid #1C7981; border-radius: 10px; margin: 4px 0 12px; background: #fff; }
+.camp-etiqueta { display: block; font-size: 18px; font-weight: 600; margin-top: 8px; }
+.ajuda-app { font-size: 17px; color: #5b6166; }

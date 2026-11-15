@@ -10,7 +10,7 @@
  * Copyright (c) 2026 xjav-dev
  * Llicència: EUPL-1.2 — vegeu LLICENCIA.txt
  * SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.5.0 · 2026-11-15
+ * Versió: 0.7.0 · 2026-11-15
  */
 
 /** Pestanyes que es desen a la còpia. */
@@ -213,4 +213,74 @@ function importaCopia_(ctx, dades) {
   anotaAuditoria_(ctx.nom, 'importa una còpia', 'còpia ' + c.meta.versio + ' (esquema ' + c.esquema + ', ' + c.meta.data + ')' +
     (migrat ? ', migrada a l\'esquema ' + VERSIO_ESQUEMA : '') + '; còpia prèvia: ' + previa.nom);
   return { previa: previa.nom, migrat: migrat };
+}
+
+// ---- Esborrar l'historial (per començar de zero en producció) ----
+
+var SEGONS_TESTIMONI_ESBORRAT_ = 60;
+
+function fraseEsborrat_() { return NOM_APP.toUpperCase() + ' REINICIALITZA'; }
+
+/** Registres que s'esborrarien segons l'abast: «practiques» (només DEMO) o «tot». */
+function registresAEsborrar_(abast) {
+  return llegeixFull_('Registre').filter(function (r) { return abast === 'tot' || r.mode === 'DEMO'; });
+}
+
+function preparaEsborrat_(ctx, dades) {
+  var abast = dades.abast === 'tot' ? 'tot' : 'practiques';
+  var fotos = dades.fotos !== false;
+  var llista = registresAEsborrar_(abast);
+  var testimoni = codiAleatori_(24, ALFABET_CODI_);
+  CacheService.getScriptCache().put('esb:' + testimoni, JSON.stringify({ qui: ctx.id, abast: abast, fotos: fotos,
+    exp: Date.now() + SEGONS_TESTIMONI_ESBORRAT_ * 1000 }), SEGONS_TESTIMONI_ESBORRAT_);
+  return {
+    abast: abast, fotos: fotos, registres: llista.length,
+    reals: llista.filter(function (r) { return r.mode === 'REAL'; }).length,
+    practiques: llista.filter(function (r) { return r.mode === 'DEMO'; }).length,
+    ambFoto: llista.filter(function (r) { return r.fotoId; }).length,
+    testimoni: testimoni, frase: fraseEsborrat_(), segons: SEGONS_TESTIMONI_ESBORRAT_
+  };
+}
+
+/** Esborra l'historial (destructiu): testimoni d'un sol ús, frase escrita, còpia prèvia i auditoria. */
+function esborraHistorial_(ctx, dades) {
+  var cau = CacheService.getScriptCache();
+  var desat = cau.get('esb:' + String(dades.testimoni || ''));
+  var reg = desat ? JSON.parse(desat) : null;
+  cau.remove('esb:' + String(dades.testimoni || ''));
+  if (!reg || reg.qui !== ctx.id || Date.now() > reg.exp) {
+    throw errorApp_('TESTIMONI', 'La confirmació ha caducat. Torneu-ho a començar.');
+  }
+  if (String(dades.frase || '').trim().toUpperCase() !== fraseEsborrat_()) {
+    throw errorApp_('DADES', 'Cal escriure exactament: ' + fraseEsborrat_() + '. Torneu-ho a començar.');
+  }
+  var previa = fesCopia_(ctx.nom, 'abans d\'esborrar l\'historial');
+  var resultat = ambBloqueig_(function () {
+    var tots = llegeixFull_('Registre');
+    var esborra = function (r) { return reg.abast === 'tot' || r.mode === 'DEMO'; };
+    var queden = tots.filter(function (r) { return !esborra(r); });
+    var fora = tots.filter(esborra);
+    var f = full_('Registre');
+    var caps = capcaleres_(f);
+    if (f.getLastRow() > 1) f.getRange(2, 1, f.getLastRow() - 1, caps.length).clearContent();
+    afegeixFiles_('Registre', queden.map(function (r) { var o = {}; caps.forEach(function (c) { o[c] = r[c]; }); return o; }));
+    return { fora: fora, queden: queden.length };
+  });
+  var fotos = 0;
+  if (reg.fotos) {
+    var idCarpeta = llegeixConfig_().carpetaFotos;
+    resultat.fora.forEach(function (r) {
+      if (!r.fotoId) return;
+      try {
+        var fitxer = DriveApp.getFileById(r.fotoId);
+        var pares = fitxer.getParents();
+        var dins = false;
+        while (pares.hasNext()) if (pares.next().getId() === idCarpeta) dins = true;
+        if (dins) { fitxer.setTrashed(true); fotos++; }
+      } catch (e) { /* ja no hi és */ }
+    });
+  }
+  anotaAuditoria_(ctx.nom, 'esborra l\'historial', (reg.abast === 'tot' ? 'tot' : 'pràctiques') + ': ' + resultat.fora.length +
+    ' registres, ' + fotos + ' fotos a la paperera; còpia prèvia: ' + previa.nom);
+  return { esborrats: resultat.fora.length, queden: resultat.queden, fotos: fotos, previa: previa.nom };
 }

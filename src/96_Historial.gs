@@ -8,11 +8,31 @@
  * Copyright (c) 2026 xjav-dev
  * Llicència: EUPL-1.2 — vegeu LLICENCIA.txt
  * SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.6.0 · 2026-11-15
+ * Versió: 0.7.0 · 2026-11-15
  */
 
 /** @type {Array<{versio: string, data: string, resum: string, migracio: string, canvis: Object<string, string[]>}>} */
 const HISTORIAL = [
+  {
+    "versio": "0.7.0",
+    "data": "2026-11-15",
+    "resum": "Les sortides sense acabar queden a l'historial, filtres a l'historial, esborrat de l'historial per passar a producció, tria de veu, zones viables a la vista i menú a la Hoja.",
+    "migracio": "No (esquema 2; nous valors tipus «sortida» i estat «abandonat» a Registre)",
+    "canvis": {
+      "Afegit": [
+        "Sortir de l'assistent sense acabar queda a l'historial (pas on es va sortir) i, en ús real, s'avisa la família. Es desa a la cua si no hi ha connexió.",
+        "Filtres de l'historial del panell: per defecte només els canvis de pegat; «Salidas sin terminar» i «Pendientes y no realizados» en activar-los. La impressió del diari segueix els filtres.",
+        "«Empezar de cero» (Copias): esborrar les pràctiques o tot l'historial, amb còpia prèvia, frase «MEDICACIÓ ASSISTIDA REINICIALITZA», testimoni de 60 s, fotos a la paperera de Drive (opcional) i auditoria.",
+        "Pas de la zona: «Zonas posibles hoy» i, en triar-ne una altra, les viables separades de les usades fa poc (amb la data d'ús i la data en què tornen a estar lliures).",
+        "Pantalla «Para la familia: alarma y voz» de l'app: tria de veu i velocitat del telèfon, amb prova.",
+        "Menú «Medicación asistida» a la Hoja: instal·lar o actualitzar, còpia de seguretat, adreça de l'aplicació web i passar a producció."
+      ],
+      "Canviat": [
+        "En pràctica, la zona proposada té en compte les pràctiques anteriors (en real, només els canvis reals).",
+        "La veu del telèfon es tria per qualitat (premium, millorada, d'Espanya) i es pot fixar per telèfon."
+      ]
+    }
+  },
   {
     "versio": "0.6.0",
     "data": "2026-11-15",
