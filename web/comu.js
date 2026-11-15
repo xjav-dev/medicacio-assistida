@@ -1,15 +1,66 @@
 /**
  * comu.js — Medicació assistida · utilitats compartides per l'app i el panell.
  * Copyright (c) 2026 xjav-dev · SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.4.0 · 2026-11-15
+ * Versió: 0.6.0 · 2026-11-15
  */
 (function () {
   'use strict';
 
+  // ---- Servidor (Apps Script) de cada família ----
+  // La web és pública i la mateixa per a tothom: l'adreça del servidor no hi és escrita.
+  // Arriba en l'enllaç que reparteix la família (?s=ID, i &d=domini si és un compte de Google Workspace)
+  // i es desa al dispositiu. config.js pot fixar-ne una per defecte (opcional).
+  var CLAU_SERVIDOR = 'meda_servidor';
+
+  /** Interpreta una adreça /exec (o només l'identificador). Retorna {id, d} o null. */
+  function llegeixServidor(text, domini) {
+    text = String(text || '').trim();
+    var m = /^https:\/\/script\.google\.com\/(?:a\/macros\/([\w.-]+)\/|macros\/)s\/([\w-]{20,200})\/(?:exec|dev)\b/.exec(text);
+    if (m) return { id: m[2], d: m[1] || '' };
+    if (/^[\w-]{20,200}$/.test(text)) return { id: text, d: /^[\w.-]+$/.test(domini || '') ? domini : '' };
+    return null;
+  }
+
+  function desaServidor(srv) {
+    if (!srv) return false;
+    magatzem.set(CLAU_SERVIDOR, JSON.stringify(srv));
+    return true;
+  }
+
+  /** Servidor actual: el de l'adreça (?s=) si n'hi ha, si no el desat, si no el de config.js. */
+  function servidor() {
+    var q = new URLSearchParams(location.search);
+    var deLaUrl = q.get('s') ? llegeixServidor(q.get('s'), q.get('d')) : null;
+    if (deLaUrl) { desaServidor(deLaUrl); return deLaUrl; }
+    var desat = magatzem.json(CLAU_SERVIDOR, null);
+    if (desat && desat.id) return desat;
+    var cfg = (window.CONFIG || {}).URL_API;
+    return cfg ? llegeixServidor(cfg) : null;
+  }
+
+  function urlApi() {
+    if ((window.CONFIG || {}).URL_PROVES) return window.CONFIG.URL_PROVES; // només per a les proves locals
+    var s = servidor();
+    if (!s) return null;
+    return 'https://script.google.com/' + (s.d ? 'a/macros/' + s.d + '/' : 'macros/') + 's/' + s.id + '/exec';
+  }
+
+  /** «s=ID[&d=domini]» per afegir als enllaços que es reparteixen. */
+  function paramServidor() {
+    var s = servidor();
+    return s ? 's=' + encodeURIComponent(s.id) + (s.d ? '&d=' + encodeURIComponent(s.d) : '') : '';
+  }
+
+  /** Les dades desades al dispositiu van separades per servidor: un enllaç d'un altre servidor no veu les sessions d'aquest. */
+  function clauServidor(nom) {
+    var s = servidor();
+    return nom + (s ? ':' + s.id.slice(-10) : '');
+  }
+
   /** Crida l'API d'Apps Script. Retorna dades o llança Error amb .codi. */
   async function api(op, dades, testimoni) {
-    var url = (window.CONFIG || {}).URL_API;
-    if (!url || url.indexOf('‹') > -1) { var e0 = new Error('Falta configurar URL_API a config.js'); e0.codi = 'CONFIG'; throw e0; }
+    var url = urlApi();
+    if (!url) { var e0 = new Error('Falta la dirección del servidor'); e0.codi = 'CONFIG'; throw e0; }
     var resp;
     try {
       resp = await fetch(url, {
@@ -72,5 +123,7 @@
     return d.getFullYear() + '-' + dos(d.getMonth() + 1) + '-' + dos(d.getDate()) + ' ' + dos(d.getHours()) + ':' + dos(d.getMinutes());
   }
 
-  window.Comu = { api: api, h: h, buida: buida, magatzem: magatzem, uuid: uuid, deClau: deClau, clau: clau, dos: dos };
+  window.Comu = { api: api, h: h, buida: buida, magatzem: magatzem, uuid: uuid, deClau: deClau, clau: clau, dos: dos,
+    servidor: servidor, llegeixServidor: llegeixServidor, desaServidor: desaServidor, urlApi: urlApi,
+    paramServidor: paramServidor, clauServidor: clauServidor };
 })();

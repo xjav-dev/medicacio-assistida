@@ -1,7 +1,6 @@
 {
   "name": "Mi medicación · La meva medicació",
   "short_name": "Mi parche",
-  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",

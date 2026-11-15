@@ -2,12 +2,12 @@
  * panel.js — Medicació assistida · panell de supervisors i administradors.
  * Tot es fa per l'API: ningú no obre la Hoja de càlcul.
  * Copyright (c) 2026 xjav-dev · SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.5.0 · 2026-11-15
+ * Versió: 0.6.0 · 2026-11-15
  */
 (function () {
   'use strict';
   var C = window.Comu, h = C.h;
-  var CLAU = 'meda_panel';
+  var CLAU = C.clauServidor('meda_panel'); // separada per servidor
   var DIES = ['', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
   var DIES_CURT = ['', 'L', 'M', 'X', 'J', 'V', 'S', 'D'];
   var TIPUS_PAS = { retirada: 'Quitar el anterior (obligatorio confirmar)', zona: 'Elegir zona', info: 'Instrucción', temporitzador: 'Temporizador', foto: 'Foto' };
@@ -133,6 +133,41 @@
     return h('span', { class: 'insignia ' + m[0] }, m[1] + extra);
   }
 
+  // ---------- Servidor ----------
+  function urlBase(fitxer) { return location.origin + location.pathname.replace(/[^/]*$/, '') + fitxer + '?' + C.paramServidor(); }
+
+  /** Primer cop (o enllaç sense ?s=): cal l'adreça /exec del servidor d'Apps Script. */
+  function pantallaServidor(error) {
+    C.buida(arrel);
+    var camp = h('input', { type: 'url', placeholder: 'https://script.google.com/macros/s/…/exec', autocomplete: 'off' });
+    var form = h('form', { class: 'entrada' },
+      h('h1', {}, 'Medicación asistida'),
+      h('p', {}, 'Abra el enlace del panel que le han enviado (lleva la dirección del servidor). Si es usted quien ha instalado el servidor, pegue aquí la dirección de la aplicación web de Apps Script (acaba en /exec):'),
+      camp,
+      error ? h('p', { class: 'error', role: 'alert' }, error) : null,
+      h('button', { type: 'submit', class: 'btn primari' }, 'Guardar en este navegador'),
+      h('p', { class: 'ajuda' }, 'La dirección se guarda solo en este navegador y no aparece en la web pública.'));
+    form.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      var text = camp.value.trim();
+      var url; try { url = new URL(text); } catch (e) { url = null; }
+      var srv = url && url.searchParams.get('s') ? C.llegeixServidor(url.searchParams.get('s'), url.searchParams.get('d')) : C.llegeixServidor(text);
+      if (!srv) { pantallaServidor('No es una dirección válida de Apps Script (https://script.google.com/…/exec).'); return; }
+      C.desaServidor(srv);
+      location.replace(location.pathname + '?' + C.paramServidor());
+    });
+    arrel.appendChild(form);
+    camp.focus();
+  }
+
+  /** Bloc amb un enllaç per compartir: camp, botó de copiar i QR. */
+  function blocEnllac(text, titol) {
+    var camp = h('input', { type: 'text', readonly: true, value: text });
+    return h('div', { class: 'instal' },
+      h('div', {}, titol ? h('p', {}, titol) : null, camp, boto('Copiar enlace', function () { copia(text, camp); }, 'petit')),
+      qr(text));
+  }
+
   // ---------- Accés ----------
   function pantallaEntrada(pas, error) {
     C.buida(arrel);
@@ -179,6 +214,7 @@
   ];
 
   async function render() {
+    if (!C.urlApi()) { pantallaServidor(); return; }
     if (!st.testimoni) { pantallaEntrada(''); return; }
     C.buida(arrel);
     var contingut = h('main', { class: 'contingut', id: 'contingut' }, h('p', { class: 'carregant' }, 'Cargando…'));
@@ -562,6 +598,8 @@
     var sups = st.cfg.supervisors;
     var cfg = st.cfg.config;
     cont.appendChild(h('p', { class: 'suau' }, 'Personas que reciben los avisos y pueden entrar en este panel.'));
+    cont.appendChild(h('section', { class: 'targeta' }, h('h2', {}, 'Enlace del panel para la familia'),
+      blocEnllac(urlBase('panel.html'), 'Envíelo a las personas dadas de alta: lleva la dirección del servidor. Entrarán con su email y el código que reciban.')));
     sups.forEach(function (s) {
       var soc = st.jo && s.id === st.jo.id;
       var accions = [];
@@ -635,19 +673,14 @@
   var TIPUS_TEL = { usuaria: '👵 De la usuaria', suport: '🤝 De apoyo (siempre en práctica)' };
 
   async function vistaDispositiu(cont) {
-    var urlApp = location.href.replace(/panel\.html.*$/, 'index.html').split('#')[0];
-    var campUrl = h('input', { type: 'text', readonly: true, value: urlApp });
+    var urlApp = urlBase('index.html');
     cont.appendChild(h('section', { class: 'targeta' }, h('h2', {}, 'Instalar la app en un iPhone'),
-      h('div', { class: 'instal' },
-        h('div', {},
-          h('p', {}, 'Abra este enlace en Safari en el iPhone (o escanee el código con la cámara):'),
-          campUrl, boto('Copiar enlace', function () { copia(urlApp, campUrl); }, 'petit'),
-          h('ol', {},
-            h('li', {}, 'Botón Compartir → «Añadir a pantalla de inicio».'),
-            h('li', {}, 'Abra la app desde el icono (no desde Safari).'),
-            h('li', {}, 'Escriba el código de vinculación de 6 cifras (aquí abajo).'),
-            h('li', {}, 'En el teléfono de la usuaria: «Instrucciones de la alarma», al pie de la app, para conectar la alarma del iPhone.'))),
-        qr(urlApp))));
+      blocEnllac(urlApp, 'Abra este enlace en Safari en el iPhone (o escanee el código con la cámara). Lleva la dirección de su servidor: no lo publique.'),
+      h('ol', {},
+        h('li', {}, 'Botón Compartir → «Añadir a pantalla de inicio».'),
+        h('li', {}, 'Abra la app desde el icono (no desde Safari).'),
+        h('li', {}, 'Escriba el código de vinculación de 6 cifras (aquí abajo).'),
+        h('li', {}, 'En el teléfono de la usuaria: «Instrucciones de la alarma», al pie de la app, para conectar la alarma del iPhone.'))));
 
     var lliste = st.cfg.dispositius.map(function (d) {
       var accions = [];
@@ -700,7 +733,7 @@
   async function enllacAtall(d, urlApp) {
     try {
       var r = await crida('apiEnllacDispositiu', { id: d.id });
-      var enllac = urlApp + '#t=' + r.testimoni;
+      var enllac = urlApp + '#t=' + r.testimoni; // urlApp ja porta ?s=…
       var camp2 = h('textarea', { rows: '4', readonly: true }); camp2.value = enllac;
       modal('Enlace para el atajo del iPhone', h('div', {},
         h('p', {}, 'Normalmente no hace falta: en el iPhone de la usuaria, «Instrucciones de la alarma» copia este enlace directamente. Úselo solo si lo prepara desde otro aparato.'),
@@ -717,7 +750,7 @@
     var idiomaAvisos = h('select', {}, h('option', { value: 'es' }, 'Castellano'), h('option', { value: 'ca' }, 'Català')); idiomaAvisos.value = c.idiomaAvisos || 'es';
     var nom = h('input', { type: 'text', value: c.nomUsuaria || '', placeholder: 'Ej.: Mamá, María…' });
     var practiques = casella('Avisar también de las prácticas', c.notificarPractiques === 'si');
-    var url = h('input', { type: 'url', value: c.urlPanel || location.href.split('#')[0] });
+    var url = h('input', { type: 'url', value: c.urlPanel || urlBase('panel.html') });
     var token = h('input', { type: 'password', autocomplete: 'off', placeholder: c.telegramConfigurat ? 'Configurado (@' + c.telegramBot + '). Déjelo vacío para no cambiarlo.' : '123456789:AA…' });
     var desa = boto('Guardar ajustes', null, 'primari');
     desa.onclick = ambEspera(desa, async function () {
@@ -744,6 +777,13 @@
         } }]);
       }, 'petit perill') : null));
     cont.appendChild(h('div', { class: 'barra-accions' }, desa));
+    var srv = C.servidor();
+    cont.appendChild(h('section', { class: 'targeta' }, h('h2', {}, 'Servidor'),
+      h('p', {}, 'Este navegador usa el servidor …' + (srv ? srv.id.slice(-10) : '') + (srv && srv.d ? ' (' + srv.d + ')' : '') + '. La dirección no está en la web pública: viaja en los enlaces que se reparten.'),
+      boto('Usar otro servidor en este navegador', function () {
+        modal('Cambiar de servidor', h('p', {}, 'Se olvidará la dirección guardada y tendrá que abrir otro enlace o pegar otra dirección. Su sesión en este servidor seguirá guardada.'),
+          [{ text: 'Cancelar' }, { text: 'Cambiar', classe: 'perill', accio: function () { C.magatzem.del('meda_servidor'); location.replace(location.pathname); } }]);
+      }, 'petit')));
     cont.appendChild(h('p', { class: 'suau' }, 'Versión ' + c.versio + ' · entorno ' + c.entorn));
   }
 

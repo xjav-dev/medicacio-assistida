@@ -1,5 +1,5 @@
 /* app.css — Medicació assistida · app de la usuària. Lletra gran, contrast alt, un botó principal per pantalla.
-   Copyright (c) 2026 xjav-dev · SPDX-License-Identifier: EUPL-1.2 · Versió: 0.5.0 · 2026-11-15 */
+   Copyright (c) 2026 xjav-dev · SPDX-License-Identifier: EUPL-1.2 · Versió: 0.6.0 · 2026-11-15 */
 :root {
   --verd: #1C7981; --verd-fosc: #125960; --text: #1f2326; --gris: #5b6166; --fons: #ffffff;
   --taronja: #B35F2C; --taronja-fons: #fff1e6; --be-fons: #e8f5ef; --be: #1d6b47; --vora: #d5d9dc;
@@ -124,3 +124,8 @@ svg.cos { width: 100%; height: auto; display: block; }
 .instruccions li { margin: 12px 0; font-size: 20px; }
 .instruccions .horari { font-size: 22px; font-weight: 700; color: #125960; }
 .enllac-copiable { display: block; word-break: break-all; user-select: all; -webkit-user-select: all; font-size: 15px; background: #fff; padding: 6px; border-radius: 6px; margin-top: 6px; }
+
+/* 0.6.0 — servidor a l'enllaç */
+.enganxa { margin-top: 24px; font-size: 18px; }
+.enganxa summary { color: #125960; text-decoration: underline; cursor: pointer; min-height: 44px; }
+.camp-enllac { display: block; width: 100%; font: inherit; font-size: 16px; padding: 10px; border: 2px solid #1C7981; border-radius: 10px; margin: 8px 0; }

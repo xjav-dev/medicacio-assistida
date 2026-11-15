@@ -42,7 +42,8 @@ http.createServer((req, res) => {
   }
   if (url.pathname === '/config.js') {
     res.writeHead(200, { 'Content-Type': 'text/javascript' });
-    res.end("window.CONFIG = { URL_API: '/api' };"); return;
+    // SENSE_SERVIDOR=1: com la web publicada (sense adreça), per provar l'enllaç ?s=…
+    res.end(process.env.SENSE_SERVIDOR ? "window.CONFIG = { URL_API: '' };" : "window.CONFIG = { URL_PROVES: '/api' };"); return;
   }
   const fitxer = path.join(WEB, path.normalize(url.pathname === '/' ? '/index.html' : url.pathname));
   if (!fitxer.startsWith(WEB) || !fs.existsSync(fitxer)) { res.writeHead(404); res.end('no'); return; }

@@ -2,12 +2,13 @@
  * app.js — Medicació assistida · app de la usuària (web instal·lable a l'iPhone).
  * Pantalles: vinculació, inici, assistent pas a pas i final. Cua sense connexió.
  * Copyright (c) 2026 xjav-dev · SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.5.0 · 2026-11-15
+ * Versió: 0.6.0 · 2026-11-15
  */
 (function () {
   'use strict';
   var C = window.Comu, h = C.h;
-  var CLAU_TESTIMONI = 'meda_testimoni', CLAU_CUA = 'meda_cua', CLAU_ESTAT = 'meda_estat';
+  // Claus separades per servidor (l'adreça del servidor arriba a l'enllaç ?s=… i es desa al dispositiu).
+  var CLAU_TESTIMONI = C.clauServidor('meda_testimoni'), CLAU_CUA = C.clauServidor('meda_cua'), CLAU_ESTAT = C.clauServidor('meda_estat');
   var arrel = document.getElementById('app');
 
   // La drecera de l'iPhone obre l'app a Safari amb «#t=testimoni»: es desa i s'esborra de l'adreça.
@@ -174,7 +175,29 @@
     mostra(h('main', { class: 'pantalla centrat' }, h('p', { class: 'text-gran' }, T('carregant'))));
   }
 
+  /** Sense servidor: cal obrir l'enllaç (o escanejar el QR) que dona la família, o enganxar-lo aquí. */
+  function pantallaSenseServidor(error) {
+    var camp = h('input', { class: 'camp-enllac', type: 'url', autocomplete: 'off', 'aria-label': T('enganxaEnllac') });
+    mostra(h('main', { class: 'pantalla' },
+      h('h1', {}, T('vinculaTitol')),
+      h('p', { class: 'text-mitja' }, T('senseServidor')),
+      h('details', { class: 'enganxa' }, h('summary', {}, T('enganxaEnllac')),
+        camp,
+        error ? h('p', { class: 'error', role: 'alert' }, error) : null,
+        boto(T('desaEnllac'), function () {
+          var text = camp.value.trim();
+          var url;
+          try { url = new URL(text); } catch (e) { url = null; }
+          var srv = url && url.searchParams.get('s') ? C.llegeixServidor(url.searchParams.get('s'), url.searchParams.get('d')) : C.llegeixServidor(text);
+          if (!srv) { pantallaSenseServidor(T('enllacMal')); return; }
+          C.desaServidor(srv);
+          var t = url && /[#&]t=([\w.-]+)/.exec(url.hash);
+          location.replace(location.pathname + '?' + C.paramServidor() + (t ? '#t=' + t[1] : ''));
+        }, 'secundari'))));
+  }
+
   function pantallaVincula(error) {
+    if (!C.urlApi()) { pantallaSenseServidor(); return; }
     var esIos = /iPhone|iPad|iPod/.test(navigator.userAgent);
     var installada = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
     var camp = h('input', { class: 'camp-codi', type: 'text', inputmode: 'numeric', pattern: '[0-9]*', maxlength: '6',
@@ -254,7 +277,7 @@
   // ---------------- Instruccions de l'alarma ----------------
   function pantallaAlarma() {
     var meds = (st.estat && st.estat.medicaments) || [];
-    var enllac = location.origin + location.pathname + '#t=' + st.testimoni;
+    var enllac = location.origin + location.pathname + '?' + C.paramServidor() + '#t=' + st.testimoni;
     var resultat = h('p', { class: 'avis', role: 'status', hidden: true });
     var copia = boto(T('copiarEnllac'), async function () {
       resultat.hidden = false;

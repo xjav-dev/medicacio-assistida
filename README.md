@@ -26,8 +26,10 @@ salen de ella.
 - Panel de la familia: <https://xjav-dev.github.io/medicacio-assistida/panel.html>
 - App del iPhone: <https://xjav-dev.github.io/medicacio-assistida/index.html>
 
-Estas direcciones son de esta instalación. Quien haga su propia copia tendrá las suyas
-y deberá poner la URL de su Apps Script en `web/config.js`.
+La web es la misma para cualquier familia y **no contiene la dirección de ningún
+servidor**. Cada familia instala su propio Apps Script y, la primera vez, pega su
+dirección `/exec` en el panel. Desde el panel reparte los enlaces (con un QR) de la
+app y del panel, que ya llevan su servidor (`?s=…`) y que cada dispositivo guarda.
 
 ## Instalación
 

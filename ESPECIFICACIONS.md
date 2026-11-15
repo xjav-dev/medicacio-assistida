@@ -1,6 +1,6 @@
 # Especificaciones — Medicación asistida (`medicacio-assistida`, código `MEDA`)
 
-Versión del documento: 0.5.0 · 2026-11-15
+Versión del documento: 0.6.0 · 2026-11-15
 
 ## 1. Objetivo
 
@@ -153,6 +153,14 @@ Secretos en Script Properties: `SECRET_HMAC`, `TELEGRAM_TOKEN`,
   con copia previa («abans de migrar»). Las copias de esquema 1 se importan y se migran.
 - **DD-019 Código QR** con la biblioteca qrcode-generator (MIT), servida desde
   `web/vendor/` (sin dependencias externas en tiempo de ejecución).
+- **DD-020 Servidor en el enlace.** La web pública (GitHub Pages) no contiene la
+  dirección del Apps Script. Los enlaces que reparte el panel llevan `?s=<id>`
+  (y `&d=<dominio>` en Workspace); el dispositivo lo guarda. Solo se aceptan
+  direcciones de `script.google.com`. Las claves guardadas (sesión, estado, cola)
+  llevan el sufijo del servidor, así un enlace de otro servidor no usa las sesiones
+  de este. El manifest no fija `start_url` para que el icono de inicio conserve
+  `?s=`; **pendiente de comprobar en un iPhone real** (si no se conservara, la app
+  pide pegar el enlace). La misma web sirve a cualquier familia con su servidor.
 - **DD-010 Idiomas.** App de la usuaria en castellano o catalán (lo elige el
   administrador). Panel en castellano.
 

@@ -1,6 +1,6 @@
 # Manual — Medicación asistida
 
-Versión 0.5.1 · 2026-11-15
+Versión 0.6.0 · 2026-11-15
 
 ## 1. Qué es
 
@@ -31,7 +31,8 @@ Versión 0.5.1 · 2026-11-15
 
 ### 2.2 Web (app y panel)
 
-1. Ponga la URL `/exec` en `web/config.js` (`URL_API`).
+1. **No hace falta tocar `web/config.js`.** La dirección del servidor no se publica:
+   viaja en los enlaces que reparte el panel (`?s=…`) y cada dispositivo la guarda.
 2. El repositorio publica `web/` en GitHub Pages solo (flujo
    `.github/workflows/pages.yml`) cada vez que cambia algo de `web/`; en
    *Settings → Pages* la fuente es «GitHub Actions». La web no contiene datos:
@@ -40,8 +41,13 @@ Versión 0.5.1 · 2026-11-15
 
 ### 2.3 Primer acceso al panel
 
-Abra `panel.html`, escriba el email de la cuenta propietaria y entre con el
+Abra `https://xjav-dev.github.io/medicacio-assistida/panel.html`. La primera vez
+pide la dirección del servidor: pegue la URL `/exec` del paso 2.1 (se guarda solo
+en ese navegador). Después escriba el email de la cuenta propietaria y entre con el
 código que le llega por email (caduca en 15 minutos).
+
+Para el resto de la familia, **Personas → Enlace del panel para la familia** da un
+enlace (y un QR) que ya lleva el servidor. No lo publique.
 
 1. **Ajustes**: cómo llamarla en los avisos, idioma del teléfono (castellano o
    catalán), idioma de los avisos y dirección del panel.

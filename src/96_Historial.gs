@@ -8,11 +8,33 @@
  * Copyright (c) 2026 xjav-dev
  * Llicència: EUPL-1.2 — vegeu LLICENCIA.txt
  * SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.5.2 · 2026-11-15
+ * Versió: 0.6.0 · 2026-11-15
  */
 
 /** @type {Array<{versio: string, data: string, resum: string, migracio: string, canvis: Object<string, string[]>}>} */
 const HISTORIAL = [
+  {
+    "versio": "0.6.0",
+    "data": "2026-11-15",
+    "resum": "L'adreça del servidor ja no és a la web pública: viatja en els enllaços i QR que reparteix la família i es desa a cada dispositiu.",
+    "migracio": "No (esquema 2)",
+    "canvis": {
+      "Afegit": [
+        "Enllaços amb el servidor (?s=…): el de l'app i el seu QR (Teléfonos), el del panell per a la família amb QR (Personas), el de la drecera i el dels correus.",
+        "Pantalla inicial del panell per enganxar l'adreça /exec la primera vegada; opció «Usar otro servidor» a Ajustes.",
+        "A l'app, si no hi ha servidor: «Abra el enlace o escanee el código QR» i opció per enganxar l'enllaç.",
+        "Compatibilitat amb comptes de Google Workspace (adreces /a/macros/domini/…)."
+      ],
+      "Canviat": [
+        "config.js queda buit per defecte (es pot fixar una adreça si es vol).",
+        "Les dades desades al dispositiu (sessió, estat, cua) van separades per servidor.",
+        "El manifest ja no fixa start_url: la icona de la pantalla d'inici conserva l'enllaç amb el servidor."
+      ],
+      "Seguretat": [
+        "Només s'accepten adreces de script.google.com: un enllaç no pot enviar les dades a un altre lloc."
+      ]
+    }
+  },
   {
     "versio": "0.5.2",
     "data": "2026-11-15",

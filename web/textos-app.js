@@ -1,7 +1,7 @@
 /**
  * textos-app.js — Medicació assistida · textos de l'app de la usuària (castellà i català).
  * Copyright (c) 2026 xjav-dev · SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.5.0 · 2026-11-15
+ * Versió: 0.6.0 · 2026-11-15
  */
 window.TEXTOS_APP = {
   es: {
@@ -93,6 +93,14 @@ window.TEXTOS_APP = {
     cuaPendent: 'Hay {n} cambio(s) guardado(s) pendiente(s) de enviar.',
     senseConnexio: 'No hay conexión. Compruebe el wifi o los datos.',
     vinculaTitol: 'Vincular este teléfono · Vincular aquest telèfon',
+    senseServidor: 'Abra el enlace o escanee el código QR que le ha dado su familia. · Obriu l\'enllaç o escanegeu el codi QR que us ha donat la família.',
+    enganxaEnllac: 'Pegar el enlace · Enganxar l\'enllaç',
+    desaEnllac: 'Usar este enlace · Fer servir aquest enllaç',
+    enllacMal: 'Ese enlace no es válido. · Aquest enllaç no és vàlid.',
+    senseServidor: 'Abra el enlace o escanee el código QR que le ha dado su familia. · Obriu l\'enllaç o escanegeu el codi QR que us ha donat la família.',
+    enganxaEnllac: 'Pegar el enlace · Enganxar l\'enllaç',
+    desaEnllac: 'Usar este enlace · Fer servir aquest enllaç',
+    enllacMal: 'Ese enlace no es válido. · Aquest enllaç no és vàlid.',
     vinculaText: 'Escriba el código de 6 cifras que le dará su familia. · Escriviu el codi de 6 xifres que us donarà la família.',
     vincula: 'Vincular · Vincular',
     codiMal: 'El código no es correcto o ha caducado. · El codi no és correcte o ha caducat.',
