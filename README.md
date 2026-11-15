@@ -48,7 +48,8 @@ teléfono viendo en qué paso va, y el enlace y el código QR de la app en el pa
 ## Licencia
 
 © 2026 xjav-dev. Software libre bajo la
-[Licencia Pública de la Unión Europea v. 1.2 (EUPL-1.2)](LLICENCIA.txt).
+[Licencia Pública de la Unión Europea v. 1.2 (EUPL-1.2)](LICENSE)
+(nota sobre las versiones lingüísticas en [LLICENCIA.txt](LLICENCIA.txt)).
 Puede usarla, estudiarla, modificarla y compartirla; si distribuye una versión
 modificada, o la ofrece como servicio en red, debe publicar sus cambios con la
 misma licencia u otra compatible.

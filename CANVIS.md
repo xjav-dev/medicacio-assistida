@@ -6,6 +6,13 @@ semàntic (MAJOR.MENOR.PEGAT).
 
 ## [Sense publicar]
 
+## [0.5.2] · 2026-11-15
+Resum: fitxer LICENSE perquè GitHub reconegui la llicència EUPL-1.2.
+Migració d'esquema: no (esquema 2).
+
+### Afegit
+- LICENSE amb el text oficial de l'EUPL-1.2 (el mateix que LLICENCIA.txt, sense la nota inicial).
+
 ## [0.5.1] · 2026-11-15
 Resum: projecte publicat a GitHub amb la web desplegada automàticament a GitHub Pages i proves automàtiques.
 Migració d'esquema: no (esquema 2).

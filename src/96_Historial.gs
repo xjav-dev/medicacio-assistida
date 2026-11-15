@@ -8,11 +8,22 @@
  * Copyright (c) 2026 xjav-dev
  * Llicència: EUPL-1.2 — vegeu LLICENCIA.txt
  * SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.5.1 · 2026-11-15
+ * Versió: 0.5.2 · 2026-11-15
  */
 
 /** @type {Array<{versio: string, data: string, resum: string, migracio: string, canvis: Object<string, string[]>}>} */
 const HISTORIAL = [
+  {
+    "versio": "0.5.2",
+    "data": "2026-11-15",
+    "resum": "Fitxer LICENSE perquè GitHub reconegui la llicència EUPL-1.2.",
+    "migracio": "No (esquema 2)",
+    "canvis": {
+      "Afegit": [
+        "LICENSE amb el text oficial de l'EUPL-1.2 (el mateix que LLICENCIA.txt, sense la nota inicial)."
+      ]
+    }
+  },
   {
     "versio": "0.5.1",
     "data": "2026-11-15",
