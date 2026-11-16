@@ -8,7 +8,7 @@
  * Copyright (c) 2026 xjav-dev
  * Llicència: EUPL-1.2 — vegeu LLICENCIA.txt
  * SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.8.0 · 2026-11-16
+ * Versió: 0.10.0 · 2026-11-16
  */
 
 /** Operacions que es poden cridar sense sessió (protegides per codis d'un sol ús). */
@@ -25,7 +25,7 @@ var ROLS_ = {
   apiAudio: ['dispositiu', 'supervisor', 'administrador'],
   apiJo: S_, apiAcceptaAvis: S_, apiSurt: S_, apiResum: S_, apiHistorial: S_, apiFoto: S_, apiConfig: S_,
   apiEnllacTelegram: S_, apiComprovaTelegram: S_, apiProvaMissatge: S_,
-  apiDesaEstat: A_, apiDesaConfig: A_, apiDesaMedicament: A_, apiDesaSupervisor: A_, apiTreuSupervisor: A_,
+  apiDesaEstat: A_, apiDesaConfig: A_, apiDesaFrases: A_, apiDesaMedicament: A_, apiDesaSupervisor: A_, apiTreuSupervisor: A_,
   apiCodiVinculacio: S_, apiDesaDispositiu: A_, apiEnllacDispositiu: A_, apiDesvinculaDispositiu: A_, apiDesaAudio: A_, apiAuditoria: A_,
   apiCopies: A_, apiFesCopia: A_, apiPreparaImportacio: A_, apiImporta: A_,
   apiPreparaEsborrat: A_, apiEsborraHistorial: A_
@@ -202,6 +202,10 @@ function apiDesaConfig() {
   return executa_('apiDesaConfig', function (ctx, d) { return desaConfigGeneral_(ctx, d); });
 }
 
+function apiDesaFrases() {
+  return executa_('apiDesaFrases', function (ctx, d) { return desaFrases_(ctx, d); });
+}
+
 function apiDesaMedicament() {
   return executa_('apiDesaMedicament', function (ctx, d) { return desaMedicament_(ctx, d); });
 }
@@ -286,7 +290,7 @@ var RUTES_ = {
   apiProgres: apiProgres, apiSeguiment: apiSeguiment, apiDesaDispositiu: apiDesaDispositiu,
   apiJo: apiJo, apiAcceptaAvis: apiAcceptaAvis, apiSurt: apiSurt, apiResum: apiResum, apiHistorial: apiHistorial, apiFoto: apiFoto, apiConfig: apiConfig,
   apiEnllacTelegram: apiEnllacTelegram, apiComprovaTelegram: apiComprovaTelegram, apiProvaMissatge: apiProvaMissatge,
-  apiDesaEstat: apiDesaEstat, apiDesaConfig: apiDesaConfig, apiDesaMedicament: apiDesaMedicament,
+  apiDesaEstat: apiDesaEstat, apiDesaConfig: apiDesaConfig, apiDesaFrases: apiDesaFrases, apiDesaMedicament: apiDesaMedicament,
   apiDesaSupervisor: apiDesaSupervisor, apiTreuSupervisor: apiTreuSupervisor, apiCodiVinculacio: apiCodiVinculacio,
   apiEnllacDispositiu: apiEnllacDispositiu, apiDesvinculaDispositiu: apiDesvinculaDispositiu, apiDesaAudio: apiDesaAudio, apiAuditoria: apiAuditoria,
   apiCopies: apiCopies, apiFesCopia: apiFesCopia, apiPreparaImportacio: apiPreparaImportacio, apiImporta: apiImporta,

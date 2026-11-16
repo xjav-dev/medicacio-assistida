@@ -2,7 +2,7 @@
  * panel.js — Medicació assistida · panell de supervisors i administradors.
  * Tot es fa per l'API: ningú no obre la Hoja de càlcul.
  * Copyright (c) 2026 xjav-dev · SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.9.2 · 2026-11-16
+ * Versió: 0.10.0 · 2026-11-16
  */
 (function () {
   'use strict';
@@ -447,6 +447,7 @@
   async function vistaMedicacio(cont) {
     var meds = st.cfg.medicaments;
     meds.forEach(function (m) { cont.appendChild(editorMedicament(m)); });
+    cont.appendChild(editorFrases());
     cont.appendChild(boto('+ Añadir otro medicamento', function () {
       cont.insertBefore(editorMedicament({
         nom_es: '', nom_ca: '', actiu: true, dies: '1', hora: '10:00', margeAvisMin: 30, margeAlertaMin: 120,
@@ -454,6 +455,50 @@
         passos: [{ tipus: 'info', text_es: 'Tómese la medicación.', text_ca: 'Preneu-vos la medicació.' }]
       }), cont.lastChild);
     }, 'secundari'));
+  }
+
+  /** Text de l'app de la usuària (textos-app.js), per a les frases i les zones. */
+  function textApp(idioma, clau, v) {
+    var t = ((window.TEXTOS_APP || {})[idioma] || {})[clau] || '';
+    return String(t).replace(/\{(\w+)\}/g, function (x, k) { return v && v[k] !== undefined ? v[k] : x; });
+  }
+
+  var FRASES = [
+    ['practicaNoPosar', 'Aviso en la práctica (antes de cada paso de colocación)'],
+    ['jaPot', 'Final del temporizador (después del bip)'],
+    ['noPortavaConfirma', 'Pregunta si de verdad no llevaba parche'],
+    ['sortirConfirma', 'Pregunta al salir sin terminar'],
+    ['caigudaConfirma', 'Pregunta de «se me ha caído el parche»'],
+    ['caigudaRetirada', 'Primer paso cuando se ha caído el parche']
+  ];
+
+  /** Gravacions de les frases fixes de l'app (comunes a tots els medicaments). */
+  function editorFrases() {
+    var actuals = st.cfg.config.audiosFrases || {};
+    var f = { es: Object.assign({}, actuals.es), ca: Object.assign({}, actuals.ca) };
+    var desa = boto('Guardar frases', null, 'primari');
+    desa.onclick = ambEspera(desa, async function () {
+      st.cfg = await crida('apiDesaFrases', { frases: f });
+      avis('Guardado.');
+      render();
+    });
+    var n = Object.keys(f.es).length + Object.keys(f.ca).length;
+    return h('section', { class: 'targeta editor' },
+      h('details', {}, h('summary', {}, 'Frases de la app (' + n + ' grabadas)'),
+        h('p', { class: 'ajuda' }, 'Son frases que la app dice fuera de los pasos. Si no tienen grabación, las dice la voz del teléfono. La felicitación final siempre la dice el teléfono (cambia cada vez).'),
+        h('div', { class: 'passos' }, FRASES.map(function (x) {
+          var clau = x[0];
+          var controls = function (idioma) {
+            return controlsAudio({}, f[idioma], idioma, function () { return textApp(idioma, clau); },
+              { clau: clau, nom: 'frase_' + clau + '_' + idioma, recorda: 'Grabación subida. Pulse «Guardar frases» para usarla.', recordaTreu: 'Pulse «Guardar frases» para quitarla.' });
+          };
+          return h('div', { class: 'pas' },
+            h('div', { class: 'pas-cap' }, h('strong', {}, x[1])),
+            h('div', { class: 'graella' },
+              h('div', {}, h('p', {}, '«' + textApp('es', clau) + '»'), controls('es')),
+              h('div', {}, h('p', {}, '«' + textApp('ca', clau) + '»'), controls('ca'))));
+        })),
+        h('div', { class: 'barra-accions' }, desa)));
   }
 
   function editorMedicament(original) {
@@ -492,10 +537,17 @@
           var ic = h('input', { type: 'text', value: z.nom_ca || '' }); ic.oninput = function () { z.nom_ca = ic.value; };
           var ia = h('input', { type: 'checkbox', 'aria-label': 'Zona ' + z.codi + ' activa' }); ia.checked = z.activa !== false; ia.onchange = function () { z.activa = ia.checked; };
           tbz.appendChild(h('tr', {}, h('td', {}, h('strong', {}, z.codi)), h('td', {}, ie), h('td', {}, ic), h('td', {}, ia)));
+          var textZona = function (idioma) {
+            return function () { return textApp(idioma, 'zonaToca', { codi: z.codi, nom: (idioma === 'ca' ? z.nom_ca : z.nom_es) || z.nom_es || '' }); };
+          };
+          tbz.appendChild(h('tr', { class: 'fila-audio' }, h('td', {}),
+            h('td', {}, controlsAudio(m, z, 'es', textZona('es'), { nom: (m.nom_es || 'med') + '_zona' + z.codi + '_es' })),
+            h('td', {}, controlsAudio(m, z, 'ca', textZona('ca'), { nom: (m.nom_es || 'med') + '_zona' + z.codi + '_ca' })), h('td', {})));
         });
         tz.appendChild(tbz);
         caixa.appendChild(h('details', {}, h('summary', {}, 'Zonas del cuerpo (A–H)'),
           h('p', { class: 'ajuda' }, 'Compruebe que los nombres coinciden con el folleto. Si la usuaria no puede llegar a la espalda, desactive esas zonas (hacen falta al menos 5 activas para no repetir en 14 días).'),
+          h('p', { class: 'ajuda' }, 'La app dice qué zona toca justo después del paso de la zona. Puede grabarlo por zona (por ejemplo «Hoy le toca la zona A, …»), o importarlo con «Importar grabaciones…» con archivos llamados Zona_A, Zona_B…'),
           h('div', { class: 'taula-scroll' }, tz)));
       }
 
@@ -565,8 +617,10 @@
   }
 
   // ---------- Àudio: provar la veu, gravar, pujar ----------
-  function controlsAudio(m, p, idioma, text) {
-    var clau = 'audio_' + idioma;
+  // opc (opcional): { clau: propietat on va l'ID, nom: nom del fitxer a Drive, recorda: missatge després de pujar }
+  function controlsAudio(m, p, idioma, text, opc) {
+    opc = opc || {};
+    var clau = opc.clau || 'audio_' + idioma;
     var estat = h('span', { class: 'ajuda' }, p[clau] ? '🎙 Con grabación propia' : 'Voz del teléfono');
     var cont = h('div', { class: 'audio' });
     var provaVeu = boto('▶ Probar voz', function () {
@@ -603,17 +657,17 @@
     var escolta = p[clau] ? boto('▶ Escuchar grabación', async function () {
       try { var d = await crida('apiAudio', { id: p[clau] }); new Audio('data:' + d.mime + ';base64,' + d.b64).play(); } catch (e) { errorA(e); }
     }, 'petit') : null;
-    var treu = p[clau] ? boto('✕ Quitar grabación', function () { p[clau] = ''; refresca(); avis('Recuerde guardar los cambios.'); }, 'petit') : null;
+    var treu = p[clau] ? boto('✕ Quitar grabación', function () { p[clau] = ''; refresca(); avis(opc.recordaTreu || 'Recuerde guardar los cambios.'); }, 'petit') : null;
 
     async function pujaAudio(blob, mime) {
       if (blob.size > 2 * 1024 * 1024) { avis('El audio es demasiado largo (máx. 2 MB).', 'error'); return; }
       var b64 = await llegeixB64(blob);
       try {
-        var r = await crida('apiDesaAudio', { b64: b64, mime: mimeAudio(mime, blob.name), nom: (m.nom_es || 'med') + '_pas' + (p.id || '') + '_' + idioma });
-        p[clau] = r.id; refresca(); avis('Grabación subida. Pulse «Guardar cambios» para usarla.');
+        var r = await crida('apiDesaAudio', { b64: b64, mime: mimeAudio(mime, blob.name), nom: opc.nom || (m.nom_es || 'med') + '_pas' + (p.id || '') + '_' + idioma });
+        p[clau] = r.id; refresca(); avis(opc.recorda || 'Grabación subida. Pulse «Guardar cambios» para usarla.');
       } catch (e) { errorA(e); }
     }
-    function refresca() { var nou = controlsAudio(m, p, idioma, text); cont.replaceWith(nou); }
+    function refresca() { var nou = controlsAudio(m, p, idioma, text, opc); cont.replaceWith(nou); }
     cont.appendChild(h('div', { class: 'audio-botons' }, provaVeu, grava, puja, escolta, treu, fitxer));
     cont.appendChild(estat);
     return cont;
@@ -635,6 +689,12 @@
     return tipus || 'audio/mp4';
   }
 
+  /** Zona d'un nom de fitxer: «Zona_A.m4a», «zona-b.mp3»… (només si el medicament té aquesta zona). */
+  function zonaDeFitxer(nom, m) {
+    var x = /zona[\s_-]*([a-h])(?![a-z])/i.exec(nom);
+    return x ? (m.zones || []).filter(function (z) { return z.codi === x[1].toUpperCase(); })[0] || null : null;
+  }
+
   /** Número de pas d'un nom de fitxer: «Paso_3.m4a», «pas 3», «03.m4a»… */
   function numeroDePas(nom) {
     var m = /(?:paso|pas|step)[\s_-]*0*(\d{1,2})/i.exec(nom) || /(?:^|\D)0*(\d{1,2})(?:\D*)\.\w+$/.exec(nom);
@@ -649,30 +709,33 @@
     var relacions = [];
     fitxers.onchange = function () {
       relacions = Array.from(fitxers.files).map(function (f) {
+        var zona = zonaDeFitxer(f.name, m);
+        if (zona) return { fitxer: f, zona: zona, ordre: 100 + zona.codi.charCodeAt(0) };
         var n = numeroDePas(f.name);
-        return { fitxer: f, pas: n && n <= m.passos.length ? n : null };
-      }).sort(function (a, b) { return (a.pas || 99) - (b.pas || 99); });
+        return { fitxer: f, pas: n && n <= m.passos.length ? n : null, ordre: n && n <= m.passos.length ? n : 999 };
+      }).sort(function (a, b) { return a.ordre - b.ordre; });
       C.buida(previa).appendChild(h('ul', { class: 'llista' }, relacions.map(function (x) {
         var p = x.pas ? m.passos[x.pas - 1] : null;
         return h('li', {}, h('strong', {}, x.fitxer.name), ' → ',
+          x.zona ? 'Zona ' + x.zona.codi + ' (' + (x.zona['nom_' + idioma.value] || x.zona.nom_es || '') + ')' :
           p ? 'Paso ' + x.pas + ': «' + String(p['text_' + idioma.value] || p.text_es || '').slice(0, 60) + '…»'
-            : h('span', { class: 'error' }, 'no se sabe a qué paso va (el nombre debe llevar el número, p. ej. Paso_3)'),
+            : h('span', { class: 'error' }, 'no se sabe a qué paso va (el nombre debe llevar el número, p. ej. Paso_3, o la zona, p. ej. Zona_A)'),
           x.fitxer.size > 2 * 1024 * 1024 ? h('span', { class: 'error' }, ' · demasiado grande (máx. 2 MB)') : null);
       })));
     };
     idioma.onchange = function () { if (fitxers.files.length) fitxers.onchange(); };
     modal('Importar grabaciones', h('div', {},
-      h('p', {}, 'Elija las grabaciones de los pasos (por ejemplo Paso_1.m4a … Paso_9.m4a). Cada una va al paso con su número.'),
+      h('p', {}, 'Elija las grabaciones de los pasos (por ejemplo Paso_1.m4a … Paso_9.m4a) y, si quiere, de las zonas (Zona_A.m4a … Zona_H.m4a). Cada una va al paso con su número o a la zona con su letra.'),
       camp('Idioma de las grabaciones', idioma), camp('Archivos', fitxers), previa),
     [{ text: 'Cancelar' }, { text: 'Subir y guardar', classe: 'primari', accio: async function () {
-      var bones = relacions.filter(function (x) { return x.pas && x.fitxer.size <= 2 * 1024 * 1024; });
-      if (!bones.length) { avis('No hay ninguna grabación que se pueda asignar a un paso.', 'error'); return false; }
+      var bones = relacions.filter(function (x) { return (x.pas || x.zona) && x.fitxer.size <= 2 * 1024 * 1024; });
+      if (!bones.length) { avis('No hay ninguna grabación que se pueda asignar a un paso o una zona.', 'error'); return false; }
       for (var i = 0; i < bones.length; i++) {
         avis('Subiendo ' + (i + 1) + ' de ' + bones.length + '…');
         var x = bones[i];
         var r = await crida('apiDesaAudio', { b64: await llegeixB64(x.fitxer), mime: mimeAudio(x.fitxer.type, x.fitxer.name),
-          nom: (m.nom_es || 'med') + '_pas' + x.pas + '_' + idioma.value });
-        m.passos[x.pas - 1]['audio_' + idioma.value] = r.id;
+          nom: (m.nom_es || 'med') + (x.zona ? '_zona' + x.zona.codi : '_pas' + x.pas) + '_' + idioma.value });
+        (x.zona || m.passos[x.pas - 1])['audio_' + idioma.value] = r.id;
       }
       enAcabar();
     } }]);

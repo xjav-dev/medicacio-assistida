@@ -8,7 +8,7 @@
  * Copyright (c) 2026 xjav-dev
  * Llicència: EUPL-1.2 — vegeu LLICENCIA.txt
  * SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.9.2 · 2026-11-16
+ * Versió: 0.10.0 · 2026-11-16
  */
 
 // ---- Medicaments ----
@@ -98,13 +98,13 @@ function estatApp_(ctx, d) {
           text: p['text_' + idioma] || p.text_es, audio: p['audio_' + idioma] || '' };
       }),
       zones: m.zones.filter(function (z) { return z.activa !== false; }).map(function (z) {
-        return { codi: z.codi, nom: z['nom_' + idioma] || z.nom_es };
+        return { codi: z.codi, nom: z['nom_' + idioma] || z.nom_es, audio: z['audio_' + idioma] || '' };
       })
     };
   });
   return {
     estat: actiu ? 'ACTIU' : 'DEMO', estatSistema: cfg.estat === 'ACTIU' ? 'ACTIU' : 'DEMO',
-    versio: VERSIO, idioma: idioma, idiomaSistema: idiomaSistema, ara: clau_(ara), araMs: ara.getTime(),
+    versio: VERSIO, frases: frasesGravades_(cfg)[idioma] || {}, idioma: idioma, idiomaSistema: idiomaSistema, ara: clau_(ara), araMs: ara.getTime(),
     guardaUbicacio: cfg.guardaUbicacio !== 'no' && !suport,
     dispositiu: { nom: ctx.nom, tipus: suport ? 'suport' : 'usuaria' },
     seguiment: suport ? progressos_() : null,
@@ -411,4 +411,14 @@ function historial_(dades) {
     return r.mode === mode && quan >= des && quan <= fins;
   }).sort(function (a, b) { return (a.fi || a.dataProgramada) < (b.fi || b.dataProgramada) ? 1 : -1; })
     .slice(0, 1000).map(function (r) { return registrePublic_(r, meds[r.medicament], 'es'); });
+}
+
+/** Gravacions de les frases fixes: {es: {clau: id}, ca: {…}}, només amb claus i ID vàlids. */
+function frasesGravades_(cfg) {
+  var desat = llegeixJson_(cfg.audiosFrases, {}), net = { es: {}, ca: {} };
+  ['es', 'ca'].forEach(function (idioma) {
+    var m = desat && desat[idioma] && typeof desat[idioma] === 'object' ? desat[idioma] : {};
+    FRASES_GRAVABLES_.forEach(function (k) { if (/^[\w-]{10,80}$/.test(String(m[k] || ''))) net[idioma][k] = String(m[k]); });
+  });
+  return net;
 }

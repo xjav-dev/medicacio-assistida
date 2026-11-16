@@ -1,6 +1,6 @@
 # Manual — Medicación asistida
 
-Versión 0.9.2 · 2026-11-16
+Versión 0.10.0 · 2026-11-16
 
 ## 1. Qué es
 
@@ -187,6 +187,13 @@ teléfono y se envía solo al volver la conexión.
   elija el idioma y seleccione todos los audios de golpe. El número del nombre del
   archivo indica el paso (`Paso_1.m4a`, `pas-2.m4a`…); antes de subir se ve qué audio
   va a cada paso. Con grabación, la app la reproduce en lugar de la voz del teléfono.
+  También acepta las zonas: archivos `Zona_A.m4a` … `Zona_H.m4a` (cada uno dice qué
+  zona toca, p. ej. «Hoy le toca la zona A, …»). En **Zonas del cuerpo** se pueden
+  grabar una a una.
+- **Frases de la app** (Medicación, abajo): grabaciones de lo que la app dice fuera de
+  los pasos: el aviso de la práctica, «Ya puede soltar», las preguntas de confirmación
+  y el primer paso cuando se cae el parche. Pulse **Guardar frases**. Sin grabación las
+  dice la voz del teléfono; la felicitación final siempre la dice el teléfono.
   Si graba la voz con un programa de voz artificial, revise antes sus condiciones de
   uso: muchos solo permiten usar el audio dentro de un vídeo.
 - **Personas**: alta y baja, rol, canales, vincular Telegram, mensaje de prueba.

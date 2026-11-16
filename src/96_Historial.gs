@@ -8,11 +8,27 @@
  * Copyright (c) 2026 xjav-dev
  * Llicència: EUPL-1.2 — vegeu LLICENCIA.txt
  * SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.9.2 · 2026-11-16
+ * Versió: 0.10.0 · 2026-11-16
  */
 
 /** @type {Array<{versio: string, data: string, resum: string, migracio: string, canvis: Object<string, string[]>}>} */
 const HISTORIAL = [
+  {
+    "versio": "0.10.0",
+    "data": "2026-11-16",
+    "resum": "Es poden gravar les frases que l'app diu fora dels passos i la zona que toca.",
+    "migracio": "No (esquema 3; nova clau audiosFrases a Config i gravació opcional a cada zona)",
+    "canvis": {
+      "Afegit": [
+        "Panell → Medicación → «Frases de la app»: gravació (castellà i català) de l'avís de pràctica, el final del temporitzador, les preguntes de confirmació i el primer pas quan ha caigut el pegat.",
+        "Gravació per zona («Zona A: …»), que sona després del pas de la zona; també amb «Importar grabaciones…» amb fitxers Zona_A … Zona_H.",
+        "L'app baixa totes les gravacions en obrir-se, perquè el primer pas ja soni amb la seva."
+      ],
+      "Canviat": [
+        "La veu encadena gravacions i veu del telèfon frase a frase (avís, pas, zona)."
+      ]
+    }
+  },
   {
     "versio": "0.9.2",
     "data": "2026-11-16",

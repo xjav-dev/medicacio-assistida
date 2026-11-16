@@ -1,6 +1,6 @@
 # Especificaciones — Medicación asistida (`medicacio-assistida`, código `MEDA`)
 
-Versión del documento: 0.9.2 · 2026-11-16
+Versión del documento: 0.10.0 · 2026-11-16
 
 ## 1. Objetivo
 
@@ -93,6 +93,8 @@ anterior?», es obligatorio y queda registrado.
 - **CU-20 Idioma elegido por la usuaria** desde el inicio de la app (por teléfono).
 - **CU-21 Importar grabaciones** de varios pasos a la vez, asignadas por el nombre
   del archivo.
+- **CU-22 Frases y zonas grabadas.** Las frases fijas de la app (lista
+  `FRASES_GRAVABLES_`) y cada zona pueden tener grabación por idioma.
 - **CU-09 Sin conexión.** Si al terminar no hay conexión, el cambio se guarda en
   el iPhone y se envía al recuperarla.
 
@@ -193,6 +195,11 @@ Secretos en Script Properties: `SECRET_HMAC`, `TELEGRAM_TOKEN`,
   condiciones están pensadas para usar el audio dentro de vídeos y no para repartir
   los archivos sueltos. Se retiraron (también del historial del repositorio). Las
   grabaciones solo se guardan en el Drive de cada familia (panel → Pasos).
+- **DD-025 Frases grabadas (0.10.0).** Se guardan en `Config.audiosFrases`
+  ({es, ca} → clave → ID de Drive), comunes a todos los medicamentos; las de zona, en
+  el JSON de zonas del medicamento. El servidor solo acepta claves conocidas e ID con
+  forma de ID de Drive, y `apiAudio` solo sirve archivos de la carpeta de audios. La
+  app encadena frase a frase: grabación si está descargada, si no la voz del teléfono.
 - **DD-023 Bip (0.8.0).** Sonido generado con Web Audio (sin archivos), preparado en
   el toque de «Empezar a contar» porque el iPhone solo permite sonido tras un toque.
 

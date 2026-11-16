@@ -9,7 +9,7 @@
  * Copyright (c) 2026 xjav-dev
  * Llicència: EUPL-1.2 — vegeu LLICENCIA.txt
  * SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.8.0 · 2026-11-16
+ * Versió: 0.10.0 · 2026-11-16
  */
 
 function configPanel_() {
@@ -21,7 +21,8 @@ function configPanel_() {
       guardaUbicacio: cfg.guardaUbicacio !== 'no',
       telegramBot: cfg.telegramBot, telegramConfigurat: !!tokenTelegram_(), urlPanel: cfg.urlPanel,
       entorn: PropertiesService.getScriptProperties().getProperty('ENTORN') || 'desenvolupament',
-      versio: VERSIO
+      versio: VERSIO,
+      audiosFrases: frasesGravades_(cfg)
     },
     medicaments: medicaments_(false),
     supervisors: llegeixFull_('Supervisors').filter(function (s) { return s.actiu === 'si'; }).map(function (s) {
@@ -69,6 +70,15 @@ function desaConfigGeneral_(ctx, dades) {
   return configPanel_();
 }
 
+/** Desa les gravacions de les frases fixes de l'app (només claus conegudes i ID de Drive). */
+function desaFrases_(ctx, dades) {
+  var nou = frasesGravades_({ audiosFrases: JSON.stringify(dades.frases || {}) });
+  ambBloqueig_(function () { desaConfig_({ audiosFrases: JSON.stringify(nou) }); });
+  anotaAuditoria_(ctx.nom, 'canvia les gravacions de les frases',
+    'es: ' + Object.keys(nou.es).length + ', ca: ' + Object.keys(nou.ca).length);
+  return configPanel_();
+}
+
 // ---- Medicaments ----
 
 var TIPUS_PAS_ = ['retirada', 'zona', 'info', 'temporitzador', 'foto'];
@@ -110,7 +120,9 @@ function validaMedicament_(d) {
     var codi = String(z.codi || '').toUpperCase();
     if (!/^[A-Z]$/.test(codi) || codisVistos[codi]) throw errorApp_('DADES', 'Codi de zona no vàlid o repetit: ' + codi);
     codisVistos[codi] = true;
-    return { codi: codi, nom_es: netejaText_(z.nom_es, 80), nom_ca: netejaText_(z.nom_ca, 80), activa: z.activa !== false };
+    return { codi: codi, nom_es: netejaText_(z.nom_es, 80), nom_ca: netejaText_(z.nom_ca, 80), activa: z.activa !== false,
+      audio_es: /^[\w-]{10,80}$/.test(z.audio_es || '') ? z.audio_es : '',
+      audio_ca: /^[\w-]{10,80}$/.test(z.audio_ca || '') ? z.audio_ca : '' };
   });
   var diesRep = enter(d.diesRepeticioZona || 0, 0, 60, 'Els dies sense repetir zona');
   var teZona = passos.some(function (p) { return p.tipus === 'zona'; });

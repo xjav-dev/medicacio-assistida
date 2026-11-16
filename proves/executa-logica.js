@@ -194,6 +194,23 @@ comprova(r.ok && r.dades.b64 === FOTO, 'la foto es pot veure des del panell');
 comprova(env.post('apiHistorial', { mode: 'DEMO' }, tAdmin).dades.length === 1, 'la pràctica queda a part');
 comprova(env.post('apiAudio', { id: 'llibre1' }, tDis).error.codi === 'NO_TROBAT', 'no es pot llegir un fitxer qualsevol de Drive');
 
+// Gravacions de frases i zones
+const ID_A = 'fitxer0000000000000000001', ID_B = 'fitxer0000000000000000002';
+comprova(env.post('apiDesaFrases', { frases: { es: { jaPot: ID_A } } }, tDis).error.codi === 'SENSE_PERMIS', 'un telèfon no pot canviar les frases');
+r = env.post('apiDesaFrases', { frases: { es: { jaPot: ID_A, inventada: ID_B, sortirConfirma: 'x' }, ca: { practicaNoPosar: ID_B } } }, tAdmin);
+comprova(r.ok && r.dades.config.audiosFrases.es.jaPot === ID_A && !r.dades.config.audiosFrases.es.inventada &&
+  !r.dades.config.audiosFrases.es.sortirConfirma && r.dades.config.audiosFrases.ca.practicaNoPosar === ID_B,
+  'l\'administrador desa les frases (només claus conegudes i ID vàlids)', r.error || r.dades.config.audiosFrases);
+let eF = env.post('apiEstatApp', {}, tDis).dades;
+comprova(eF.frases.jaPot === ID_A && !eF.frases.practicaNoPosar, 'l\'app rep les frases gravades del seu idioma', eF.frases);
+comprova(env.post('apiEstatApp', { idioma: 'ca' }, tDis).dades.frases.practicaNoPosar === ID_B, 'en català rep les del català');
+const ambZona = Object.assign({}, nouMed, { zones: nouMed.zones.map((x, i) => Object.assign({}, x, i === 0 ? { audio_es: ID_A, audio_ca: 'no val' } : {})) });
+r = env.post('apiDesaMedicament', ambZona, tAdmin);
+eF = env.post('apiEstatApp', {}, tDis).dades;
+const z0 = r.ok && r.dades.medicaments.find((x) => x.id === medId).zones[0];
+comprova(z0 && z0.audio_es === ID_A && z0.audio_ca === '' && eF.medicaments[0].zones[0].audio === ID_A,
+  'les zones desen la seva gravació i l\'app la rep', r.error || z0);
+
 // Zones mínimes
 const poquesZones = Object.assign({}, nouMed, { zones: nouMed.zones.map((x, i) => Object.assign({}, x, { activa: i < 4 })) });
 r = env.post('apiDesaMedicament', poquesZones, tAdmin);

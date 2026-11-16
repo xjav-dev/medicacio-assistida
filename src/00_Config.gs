@@ -7,10 +7,10 @@
  * Copyright (c) 2026 xjav-dev
  * Llicència: EUPL-1.2 — vegeu LLICENCIA.txt
  * SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.9.2 · 2026-11-16
+ * Versió: 0.10.0 · 2026-11-16
  */
 
-var VERSIO = '0.9.2';
+var VERSIO = '0.10.0';
 var CODI_APP = 'MEDA';
 var NOM_APP = 'Medicació assistida';
 /** Versió de l'esquema de dades (columnes dels fulls). Canvia només amb una migració. */
@@ -44,8 +44,12 @@ var CONFIG_DEFECTE_ = {
   carpetaAudios: '',
   carpetaCopies: '',
   urlPanel: '',               // URL del panell, només per posar-la als correus
-  avisosAcceptats: '{}'       // {idSupervisor: versió de l'avís d'ús acceptada}
+  avisosAcceptats: '{}',      // {idSupervisor: versió de l'avís d'ús acceptada}
+  audiosFrases: '{}'          // {es: {clauFrase: idÀudio}, ca: {…}}: gravacions de les frases fixes de l'app
 };
+
+/** Frases fixes de l'app (claus de textos-app.js) que es poden gravar. */
+var FRASES_GRAVABLES_ = ['practicaNoPosar', 'jaPot', 'noPortavaConfirma', 'sortirConfirma', 'caigudaConfirma', 'caigudaRetirada'];
 
 /** Minuts abans de l'hora programada en què l'app ja ofereix el canvi. */
 var MINUTS_ANTICIPACIO = 60;

@@ -6,6 +6,19 @@ semàntic (MAJOR.MENOR.PEGAT).
 
 ## [Sense publicar]
 
+## [0.10.0] · 2026-11-16
+Resum: es poden gravar les frases que l'app diu fora dels passos i la zona que toca.
+Migració d'esquema: no (esquema 3; nova clau audiosFrases a Config i gravació opcional a cada zona).
+
+### Afegit
+- Panell → Medicación → «Frases de la app»: gravació (castellà i català) de l'avís de pràctica, el final del temporitzador, les preguntes de confirmació i el primer pas quan ha caigut el pegat.
+- Gravació per zona («Zona A: …»), que sona després del pas de la zona; també amb «Importar grabaciones…» amb fitxers Zona_A … Zona_H.
+- L'app baixa totes les gravacions en obrir-se, perquè el primer pas ja soni amb la seva.
+
+### Canviat
+- La veu encadena gravacions i veu del telèfon frase a frase (avís, pas, zona).
+
+
 ## [0.9.2] · 2026-11-16
 Resum: la pantalla inicial de l'app mostra la versió de la web i la del servidor.
 Migració d'esquema: no (esquema 3).
