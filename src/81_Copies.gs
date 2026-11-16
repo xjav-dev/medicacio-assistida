@@ -10,7 +10,7 @@
  * Copyright (c) 2026 xjav-dev
  * Llicència: EUPL-1.2 — vegeu LLICENCIA.txt
  * SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.7.0 · 2026-11-15
+ * Versió: 0.8.0 · 2026-11-16
  */
 
 /** Pestanyes que es desen a la còpia. */
@@ -20,7 +20,7 @@ var FULLS_SUBSTITUITS_ = ['Medicaments', 'Registre'];
 /** Claus de Config que són de l'entorn i no es porten d'una còpia. */
 var CONFIG_ENTORN_ = ['esquema', 'carpetaFotos', 'carpetaAudios', 'carpetaCopies', 'telegramBot'];
 /** Migracions d'esquema: MIGRACIONS_[n] porta les dades de l'esquema n al n+1. Mai no se n'esborra cap. */
-var MIGRACIONS_ = { 1: migra_1_a_2_ };
+var MIGRACIONS_ = { 1: migra_1_a_2_, 2: migra_2_a_3_ };
 var SEGONS_TESTIMONI_IMPORTACIO_ = 60;
 
 /** Esquema 1 → 2: columna «tipus» a Dispositius; els dispositius que ja hi havia són de la usuària. Idempotent. */
@@ -34,6 +34,14 @@ function migra_1_a_2_() {
   llegeixFull_('Dispositius').forEach(function (d) {
     if (!d.tipus) actualitzaPerId_('Dispositius', d.id, { tipus: 'usuaria' });
   });
+}
+
+/** Esquema 2 → 3: columnes de la ubicació (lat, lon, precisioGps) a Registre. Idempotent. */
+function migra_2_a_3_() {
+  var f = full_('Registre');
+  var caps = capcaleres_(f);
+  var falten = ['lat', 'lon', 'precisioGps'].filter(function (c) { return caps.indexOf(c) < 0; });
+  if (falten.length) f.getRange(1, caps.length + 1, 1, falten.length).setValues([falten]);
 }
 
 /** Aplica les migracions pendents de l'esquema de les dades, amb còpia prèvia. Retorna els esquemes migrats. */

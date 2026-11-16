@@ -2,7 +2,7 @@
  * panel.js — Medicació assistida · panell de supervisors i administradors.
  * Tot es fa per l'API: ningú no obre la Hoja de càlcul.
  * Copyright (c) 2026 xjav-dev · SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.7.0 · 2026-11-15
+ * Versió: 0.8.0 · 2026-11-16
  */
 (function () {
   'use strict';
@@ -380,7 +380,7 @@
       if (amagades) resultat.appendChild(h('p', { class: 'ajuda' }, amagades + ' registro(s) ocultos por los filtros.'));
       if (!files.length) { resultat.appendChild(h('p', { class: 'suau' }, 'No hay registros que mostrar.')); return; }
       var taula = h('table', { class: 'taula' }, h('thead', {}, h('tr', {},
-        ['Previsto', 'Hecho', 'Estado', 'Tipo', 'Anterior quitado', 'Zona', 'Foto'].map(function (t) { return h('th', { scope: 'col' }, t); }))));
+        ['Previsto', 'Hecho', 'Estado', 'Tipo', 'Anterior quitado', 'Zona', 'Foto', 'Lugar'].map(function (t) { return h('th', { scope: 'col' }, t); }))));
       var tbody = h('tbody', {});
       files.forEach(function (x) {
         tbody.appendChild(h('tr', {},
@@ -390,7 +390,8 @@
           h('td', { 'data-et': 'Tipo' }, x.tipus === 'caiguda' ? 'Parche caído' : x.tipus === 'sortida' ? 'Salida · ' + String(x.notes || '').replace(/^pas (\d+) de (\d+)/, 'paso $1 de $2').replace('pegat caigut', 'parche caído') : 'Programado'),
           h('td', { 'data-et': 'Anterior quitado' }, x.anteriorRetirat === 'si' ? 'Sí' : x.anteriorRetirat === 'no portava' ? '⚠️ No llevaba' : x.anteriorRetirat === 'caiguda' ? '(se cayó)' : '—'),
           h('td', { 'data-et': 'Zona' }, x.zona ? x.zona + ' · ' + x.nomZona : '—'),
-          h('td', { 'data-et': 'Foto' }, x.teFoto ? boto('📷 Ver', function () { veuFoto(x); }, 'petit') : (x.senseFotoMotiu ? 'Sin foto: ' + x.senseFotoMotiu : '—'))));
+          h('td', { 'data-et': 'Foto' }, x.teFoto ? boto('📷 Ver', function () { veuFoto(x); }, 'petit') : (x.senseFotoMotiu ? 'Sin foto: ' + x.senseFotoMotiu : '—')),
+          h('td', { 'data-et': 'Lugar' }, enllacMapa(x))));
       });
       taula.appendChild(tbody);
       resultat.appendChild(h('div', { class: 'taula-scroll' }, taula));
@@ -410,6 +411,14 @@
     cont.appendChild(h('fieldset', { class: 'filtres-tipus' }, h('legend', {}, 'Mostrar'), fC.el, fS.el, fA.el));
     cont.appendChild(resultat);
     await carrega();
+  }
+
+  /** Enllaç al mapa (OpenStreetMap) de la ubicació GPS del registre. */
+  function enllacMapa(x) {
+    var lat = Number(x.lat), lon = Number(x.lon);
+    if (x.lat === '' || !isFinite(lat) || !isFinite(lon)) return '—';
+    var url = 'https://www.openstreetmap.org/?mlat=' + lat + '&mlon=' + lon + '#map=18/' + lat + '/' + lon;
+    return h('a', { href: url, target: '_blank', rel: 'noopener noreferrer' }, '📍 Mapa' + (x.precisioGps ? ' (±' + x.precisioGps + ' m)' : ''));
   }
 
   function imprimeixDiari() {
@@ -503,7 +512,8 @@
       var llistaPassos = h('div', { class: 'passos' });
       m.passos.forEach(function (p, i) { llistaPassos.appendChild(editorPas(m, p, i, redibuixa)); });
       caixa.appendChild(h('details', { class: 'passos-det', open: !m.id }, h('summary', {}, 'Pasos que verá y oirá la usuaria (' + m.passos.length + ')'), llistaPassos,
-        boto('+ Añadir paso', function () { m.passos.push({ tipus: 'info', text_es: '', text_ca: '' }); redibuixa(); }, 'secundari')));
+        boto('+ Añadir paso', function () { m.passos.push({ tipus: 'info', text_es: '', text_ca: '' }); redibuixa(); }, 'secundari'),
+        boto('📥 Importar grabaciones…', function () { importaGravacions(m, function () { recull(); desa.click(); }); }, 'secundari')));
 
       var desa = boto('Guardar cambios', null, 'primari');
       desa.onclick = ambEspera(desa, async function () {
@@ -597,13 +607,9 @@
 
     async function pujaAudio(blob, mime) {
       if (blob.size > 2 * 1024 * 1024) { avis('El audio es demasiado largo (máx. 2 MB).', 'error'); return; }
-      var b64 = await new Promise(function (ok, ko) {
-        var lector = new FileReader();
-        lector.onload = function () { ok(String(lector.result).split(',')[1]); };
-        lector.onerror = ko; lector.readAsDataURL(blob);
-      });
+      var b64 = await llegeixB64(blob);
       try {
-        var r = await crida('apiDesaAudio', { b64: b64, mime: mime, nom: (m.nom_es || 'med') + '_pas' + (p.id || '') + '_' + idioma });
+        var r = await crida('apiDesaAudio', { b64: b64, mime: mimeAudio(mime, blob.name), nom: (m.nom_es || 'med') + '_pas' + (p.id || '') + '_' + idioma });
         p[clau] = r.id; refresca(); avis('Grabación subida. Pulse «Guardar cambios» para usarla.');
       } catch (e) { errorA(e); }
     }
@@ -611,6 +617,65 @@
     cont.appendChild(h('div', { class: 'audio-botons' }, provaVeu, grava, puja, escolta, treu, fitxer));
     cont.appendChild(estat);
     return cont;
+  }
+
+  function llegeixB64(blob) {
+    return new Promise(function (ok, ko) {
+      var lector = new FileReader();
+      lector.onload = function () { ok(String(lector.result).split(',')[1]); };
+      lector.onerror = ko; lector.readAsDataURL(blob);
+    });
+  }
+
+  /** Tipus d'àudio que l'iPhone reprodueix bé (els .m4a de Notas de voz es marquen com audio/mp4). */
+  function mimeAudio(tipus, nom) {
+    tipus = String(tipus || '').split(';')[0];
+    if (/m4a|mp4|aac/i.test(tipus) || /\.(m4a|mp4|aac)$/i.test(nom || '')) return 'audio/mp4';
+    if (/mpeg|mp3/i.test(tipus) || /\.mp3$/i.test(nom || '')) return 'audio/mpeg';
+    return tipus || 'audio/mp4';
+  }
+
+  /** Número de pas d'un nom de fitxer: «Paso_3.m4a», «pas 3», «03.m4a»… */
+  function numeroDePas(nom) {
+    var m = /(?:paso|pas|step)[\s_-]*0*(\d{1,2})/i.exec(nom) || /(?:^|\D)0*(\d{1,2})(?:\D*)\.\w+$/.exec(nom);
+    return m ? Number(m[1]) : null;
+  }
+
+  /** Importar en bloc: tria idioma i fitxers, es relacionen amb els passos pel número i es desa tot. */
+  function importaGravacions(m, enAcabar) {
+    var idioma = h('select', {}, h('option', { value: 'es' }, 'Castellano'), h('option', { value: 'ca' }, 'Català'));
+    var fitxers = h('input', { type: 'file', accept: 'audio/*,.m4a,.mp3', multiple: true });
+    var previa = h('div', {});
+    var relacions = [];
+    fitxers.onchange = function () {
+      relacions = Array.from(fitxers.files).map(function (f) {
+        var n = numeroDePas(f.name);
+        return { fitxer: f, pas: n && n <= m.passos.length ? n : null };
+      }).sort(function (a, b) { return (a.pas || 99) - (b.pas || 99); });
+      C.buida(previa).appendChild(h('ul', { class: 'llista' }, relacions.map(function (x) {
+        var p = x.pas ? m.passos[x.pas - 1] : null;
+        return h('li', {}, h('strong', {}, x.fitxer.name), ' → ',
+          p ? 'Paso ' + x.pas + ': «' + String(p['text_' + idioma.value] || p.text_es || '').slice(0, 60) + '…»'
+            : h('span', { class: 'error' }, 'no se sabe a qué paso va (el nombre debe llevar el número, p. ej. Paso_3)'),
+          x.fitxer.size > 2 * 1024 * 1024 ? h('span', { class: 'error' }, ' · demasiado grande (máx. 2 MB)') : null);
+      })));
+    };
+    idioma.onchange = function () { if (fitxers.files.length) fitxers.onchange(); };
+    modal('Importar grabaciones', h('div', {},
+      h('p', {}, 'Elija las grabaciones de los pasos (por ejemplo Paso_1.m4a … Paso_9.m4a). Cada una va al paso con su número.'),
+      camp('Idioma de las grabaciones', idioma), camp('Archivos', fitxers), previa),
+    [{ text: 'Cancelar' }, { text: 'Subir y guardar', classe: 'primari', accio: async function () {
+      var bones = relacions.filter(function (x) { return x.pas && x.fitxer.size <= 2 * 1024 * 1024; });
+      if (!bones.length) { avis('No hay ninguna grabación que se pueda asignar a un paso.', 'error'); return false; }
+      for (var i = 0; i < bones.length; i++) {
+        avis('Subiendo ' + (i + 1) + ' de ' + bones.length + '…');
+        var x = bones[i];
+        var r = await crida('apiDesaAudio', { b64: await llegeixB64(x.fitxer), mime: mimeAudio(x.fitxer.type, x.fitxer.name),
+          nom: (m.nom_es || 'med') + '_pas' + x.pas + '_' + idioma.value });
+        m.passos[x.pas - 1]['audio_' + idioma.value] = r.id;
+      }
+      enAcabar();
+    } }]);
   }
 
   // ---------- Persones ----------
@@ -770,20 +835,23 @@
     var idiomaAvisos = h('select', {}, h('option', { value: 'es' }, 'Castellano'), h('option', { value: 'ca' }, 'Català')); idiomaAvisos.value = c.idiomaAvisos || 'es';
     var nom = h('input', { type: 'text', value: c.nomUsuaria || '', placeholder: 'Ej.: Mamá, María…' });
     var practiques = casella('Avisar también de las prácticas', c.notificarPractiques === 'si');
+    var gps = casella('Guardar la ubicación (GPS) donde se pone el parche', c.guardaUbicacio);
     var url = h('input', { type: 'url', value: c.urlPanel || urlBase('panel.html') });
     var token = h('input', { type: 'password', autocomplete: 'off', placeholder: c.telegramConfigurat ? 'Configurado (@' + c.telegramBot + '). Déjelo vacío para no cambiarlo.' : '123456789:AA…' });
     var desa = boto('Guardar ajustes', null, 'primari');
     desa.onclick = ambEspera(desa, async function () {
-      var dades = { idioma: idioma.value, idiomaAvisos: idiomaAvisos.value, nomUsuaria: nom.value, notificarPractiques: practiques.input.checked, urlPanel: url.value };
+      var dades = { idioma: idioma.value, idiomaAvisos: idiomaAvisos.value, nomUsuaria: nom.value, notificarPractiques: practiques.input.checked, guardaUbicacio: gps.input.checked, urlPanel: url.value };
       if (token.value.trim()) dades.telegramToken = token.value.trim();
       st.cfg = await crida('apiDesaConfig', dades);
       avis('Ajustes guardados.'); render();
     });
     cont.appendChild(h('section', { class: 'targeta' }, h('h2', {}, 'General'),
-      camp('Idioma del teléfono de la usuaria', idioma, 'Textos y voz de la app.'),
+      camp('Idioma del teléfono de la usuaria (por defecto)', idioma, 'Textos y voz de la app. La usuaria también puede cambiarlo desde la app.'),
       camp('Idioma de los avisos a la familia', idiomaAvisos),
       camp('Cómo llamarla en los avisos', nom),
       practiques.el,
+      gps.el,
+      h('span', { class: 'ajuda' }, 'El iPhone pedirá permiso de ubicación la primera vez. La ubicación solo se ve en el Historial (enlace al mapa).'),
       camp('Dirección de este panel', url, 'Se incluye en los emails con el código de acceso.')));
     cont.appendChild(h('section', { class: 'targeta' }, h('h2', {}, 'Bot de Telegram'),
       h('ol', { class: 'ajuda' },

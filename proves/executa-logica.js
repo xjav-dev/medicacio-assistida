@@ -99,6 +99,9 @@ comprova(env.post('apiResum', {}, tDis).error.codi === 'SENSE_PERMIS', 'el dispo
 let e = env.post('apiEstatApp', {}, tDis).dades;
 const medId = e.medicaments[0].id;
 comprova(e.estat === 'DEMO' && e.medicaments[0].passos.length === 9 && e.medicaments[0].pendent === null, 'estat inicial DEMO amb 9 passos', e.estat);
+const eCa = env.post('apiEstatApp', { idioma: 'ca' }, tDis).dades;
+comprova(eCa.idioma === 'ca' && eCa.idiomaSistema === 'es' && /Traieu-vos/.test(eCa.medicaments[0].passos[0].text), 'la usuària pot triar el català al seu telèfon', eCa.idioma);
+comprova(e.guardaUbicacio === true, 'per defecte es desa la ubicació');
 const FOTO = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 1, 2, 3]).toString('base64');
 r = env.post('apiIniciaCanvi', { medicament: medId, tipus: 'programat' }, tDis);
 comprova(r.ok && r.dades.mode === 'DEMO' && r.dades.zonaSuggerida === 'A', 'iniciar pràctica', r);
@@ -136,7 +139,7 @@ comprova(env.estat.correus.length === 1 && /pendiente/.test(env.estat.correus[0]
 r = env.post('apiIniciaCanvi', { medicament: medId, tipus: 'programat' }, tDis);
 const prog = r.dades.dataProgramada;
 comprova(r.ok && r.dades.mode === 'REAL' && r.dades.zonaSuggerida === 'A', 'iniciar canvi real: la pràctica no compta per a les zones', r.dades);
-const base = { medicament: medId, tipus: 'programat', mode: 'REAL', dataProgramada: prog, idClient: 'real1', zona: 'A', foto: FOTO };
+const base = { medicament: medId, tipus: 'programat', mode: 'REAL', dataProgramada: prog, idClient: 'real1', zona: 'A', foto: FOTO, lat: 41.5631, lon: 2.0089, precisio: 15.4 };
 comprova(env.post('apiCompletaCanvi', base, tDis).error.codi === 'DADES', 'sense confirmar la retirada no es pot completar');
 comprova(env.post('apiCompletaCanvi', Object.assign({}, base, { anteriorRetirat: 'si', zona: 'Z' }), tDis).error.codi === 'DADES', 'zona inventada rebutjada');
 comprova(env.post('apiCompletaCanvi', Object.assign({}, base, { anteriorRetirat: 'si', foto: '' }), tDis).error.codi === 'DADES', 'sense foto ni motiu rebutjat');
@@ -148,6 +151,9 @@ comprova(g.ratxa_([{ tipus: 'programat', estat: 'completat', dataProgramada: '20
   { tipus: 'programat', estat: 'no fet', dataProgramada: '2026-11-13 10:00' }, { tipus: 'programat', estat: 'completat', dataProgramada: '2026-11-09 10:00' }]) === 2, 'la ratxa es talla en un canvi no fet');
 r = env.post('apiCompletaCanvi', Object.assign({}, base, { anteriorRetirat: 'si' }), tDis);
 comprova(r.ok && r.dades.repetit && env.estat.correus.length === 1, 'reenviament (cua sense connexió) no duplica', r.dades);
+const regGps = g.llegeixFull_('Registre').find((x) => x.idClient === 'real1');
+comprova(regGps.lat === '41.563100' && regGps.lon === '2.008900' && regGps.precisioGps === '15', 'es desa la ubicació GPS del canvi', regGps);
+comprova(g.ubicacio_({ lat: 'x', lon: 2 }) === null && g.ubicacio_({ lat: 95, lon: 2 }) === null && g.ubicacio_({}) === null, 'es rebutgen ubicacions no vàlides');
 e = env.post('apiEstatApp', {}, tDis).dades;
 comprova(e.medicaments[0].pendent === null && e.medicaments[0].darrer.zona === 'A', 'ja no hi ha pendent', e.medicaments[0]);
 g.activadorRevisio(act);
@@ -204,6 +210,13 @@ env.estat.updates = [{ update_id: 7, message: { chat: { id: 555 }, text: '/start
 r = env.post('apiComprovaTelegram', {}, tAna);
 const ana = env.post('apiConfig', {}, tAdmin).dades.supervisors.find((s) => s.nom === 'Ana');
 comprova(r.dades.vinculats === 1 && ana.teTelegram && ana.perTelegram, 'Telegram vinculat amb /start', ana);
+
+// Ubicació desactivada
+env.post('apiDesaConfig', { guardaUbicacio: false }, tAdmin);
+env.post('apiCompletaCanvi', { medicament: medId, tipus: 'caiguda', mode: 'REAL', idClient: 'cai-gps', zona: 'E', senseFotoMotiu: 'x', lat: 41.5, lon: 2.1 }, tDis);
+comprova(g.llegeixFull_('Registre').find((x) => x.idClient === 'cai-gps').lat === '' && env.post('apiEstatApp', {}, tDis).dades.guardaUbicacio === false,
+  'si es desactiva, no es desa la ubicació');
+env.post('apiDesaConfig', { guardaUbicacio: true }, tAdmin);
 
 // Telèfons de suport i seguiment en directe
 r = env.post('apiCodiVinculacio', { nom: 'iPhone Ana', tipus: 'usuaria' }, tAna);
@@ -330,7 +343,8 @@ fullD.dades.push(['dVell', 'iPhone vell', 'si', '1', '2026-11-01 10:00', '']);
 g2.desaConfig_({ esquema: '1' });
 g2.instalacio();
 const dVell = g2.llegeixFull_('Dispositius').find((d) => d.id === 'dVell');
-comprova(dVell && dVell.tipus === 'usuaria' && g2.llegeixConfig_().esquema === '2', 'la migració 1→2 afegeix «tipus» i marca els telèfons existents com de la usuària', dVell);
+comprova(g2.capcaleres_(env2.llibre.getSheetByName('Registre')).indexOf('precisioGps') > -1, 'la migració 2→3 afegeix les columnes de la ubicació');
+comprova(dVell && dVell.tipus === 'usuaria' && g2.llegeixConfig_().esquema === String(g2.VERSIO_ESQUEMA), 'la migració 1→2 afegeix «tipus» i marca els telèfons existents com de la usuària', dVell);
 comprova(g2.llegeixFull_('Auditoria').some((a) => a.accio === 'fa una còpia de seguretat' && /abans de migrar/.test(a.detall)), 'abans de migrar es fa una còpia');
 g2.instalacio();
 comprova(g2.llegeixFull_('Auditoria').filter((a) => a.accio === 'migra l\'esquema').length === 1, 'la migració no es repeteix');

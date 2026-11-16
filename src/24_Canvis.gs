@@ -8,7 +8,7 @@
  * Copyright (c) 2026 xjav-dev
  * Llicència: EUPL-1.2 — vegeu LLICENCIA.txt
  * SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.7.0 · 2026-11-15
+ * Versió: 0.8.0 · 2026-11-16
  */
 
 // ---- Medicaments ----
@@ -73,9 +73,11 @@ function ratxa_(reals) {
 
 // ---- App de la usuària ----
 
-function estatApp_(ctx) {
+function estatApp_(ctx, d) {
   var cfg = llegeixConfig_();
-  var idioma = cfg.idioma === 'ca' ? 'ca' : 'es';
+  // La usuària pot triar l'idioma al seu telèfon; si no, el que ha posat l'administrador.
+  var idiomaSistema = cfg.idioma === 'ca' ? 'ca' : 'es';
+  var idioma = d && (d.idioma === 'ca' || d.idioma === 'es') ? d.idioma : idiomaSistema;
   var ara = new Date();
   var suport = ctx.tipus === 'suport';
   var actiu = cfg.estat === 'ACTIU' && !suport;
@@ -102,7 +104,8 @@ function estatApp_(ctx) {
   });
   return {
     estat: actiu ? 'ACTIU' : 'DEMO', estatSistema: cfg.estat === 'ACTIU' ? 'ACTIU' : 'DEMO',
-    idioma: idioma, ara: clau_(ara), araMs: ara.getTime(),
+    idioma: idioma, idiomaSistema: idiomaSistema, ara: clau_(ara), araMs: ara.getTime(),
+    guardaUbicacio: cfg.guardaUbicacio !== 'no' && !suport,
     dispositiu: { nom: ctx.nom, tipus: suport ? 'suport' : 'usuaria' },
     seguiment: suport ? progressos_() : null,
     medicaments: meds
@@ -168,6 +171,7 @@ function completaCanvi_(ctx, dades) {
     throw errorApp_('DADES', 'Falta la foto o el motiu.');
   }
 
+  var gps = cfg.guardaUbicacio !== 'no' ? ubicacio_(dades) : null;
   var resultat = ambBloqueig_(function () {
     var tots = llegeixFull_('Registre');
     var repetit = tots.filter(function (r) { return r.idClient === idClient; })[0];
@@ -186,6 +190,7 @@ function completaCanvi_(ctx, dades) {
       medicament: med.id, mode: mode, tipus: tipus, dataProgramada: dataProgramada,
       inici: (existent && existent.inici) || String(dades.inici || fi).slice(0, 19), fi: fi, estat: 'completat',
       anteriorRetirat: anterior, zona: dades.zona || '', fotoId: fotoId, senseFotoMotiu: foto ? '' : motiu,
+      lat: gps ? gps.lat : '', lon: gps ? gps.lon : '', precisioGps: gps ? gps.precisio : '',
       dispositiu: ctx.id, idClient: idClient
     };
     if (existent && existent.estat !== 'completat') return { registre: actualitzaPerId_('Registre', existent.id, canvis) };
@@ -210,6 +215,14 @@ function completaCanvi_(ctx, dades) {
   }
   return { fi: resultat.registre.fi, zona: resultat.registre.zona, repetit: !!resultat.repetit,
     ratxa: mode === 'REAL' && tipus === 'programat' ? ratxa_(registresDe_(med.id, 'REAL')) : 0 };
+}
+
+/** Ubicació GPS validada (o null): latitud, longitud i precisió en metres. */
+function ubicacio_(d) {
+  var lat = Number(d.lat), lon = Number(d.lon), prec = Number(d.precisio);
+  if (d.lat === '' || d.lat === undefined || d.lat === null || !isFinite(lat) || !isFinite(lon)) return null;
+  if (lat < -90 || lat > 90 || lon < -180 || lon > 180) return null;
+  return { lat: lat.toFixed(6), lon: lon.toFixed(6), precisio: isFinite(prec) && prec >= 0 && prec < 100000 ? String(Math.round(prec)) : '' };
 }
 
 // ---- Sortides sense acabar ----
@@ -302,6 +315,7 @@ function desaAudio_(b64, mime, nom) {
   b64 = String(b64 || '').replace(/^data:[^;]+;base64,/, '');
   if (!b64 || b64.length > MIDA_MAXIMA_FITXER) throw errorApp_('DADES', 'Àudio buit o massa gran.');
   mime = /^audio\/[\w.+-]+$/.test(String(mime || '').split(';')[0]) ? String(mime).split(';')[0] : 'audio/mp4';
+  if (/x-m4a|m4a|aac/i.test(mime)) mime = 'audio/mp4'; // l'iPhone els reprodueix com a MP4/AAC
   var blob = Utilities.newBlob(Utilities.base64Decode(b64), mime, nom);
   return carpeta_('carpetaAudios', 'Àudios medicació').createFile(blob).getId();
 }
@@ -362,7 +376,8 @@ function registrePublic_(r, med, idioma) {
     id: r.id, medicament: r.medicament, nomMed: med ? nomMed_(med, idioma) : r.medicament, mode: r.mode, tipus: r.tipus,
     dataProgramada: r.dataProgramada, inici: r.inici, fi: r.fi, estat: r.estat, anteriorRetirat: r.anteriorRetirat,
     zona: r.zona, nomZona: med && r.zona ? nomZona_(med, r.zona, idioma) : '', teFoto: !!r.fotoId,
-    senseFotoMotiu: r.senseFotoMotiu, avisat: r.avisat, alertat: r.alertat, notes: r.notes
+    senseFotoMotiu: r.senseFotoMotiu, avisat: r.avisat, alertat: r.alertat, notes: r.notes,
+    lat: r.lat || '', lon: r.lon || '', precisioGps: r.precisioGps || ''
   };
 }
 

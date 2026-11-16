@@ -1,4 +1,4 @@
-/* panel.css — Medicació assistida · panell de la família. Copyright (c) 2026 xjav-dev · SPDX-License-Identifier: EUPL-1.2 · Versió: 0.7.0 · 2026-11-15 */
+/* panel.css — Medicació assistida · panell de la família. Copyright (c) 2026 xjav-dev · SPDX-License-Identifier: EUPL-1.2 · Versió: 0.8.0 · 2026-11-16 */
 :root { --verd: #1C7981; --verd-fosc: #125960; --text: #1f2326; --suau: #5b6166; --vora: #d5d9dc; --taronja: #B35F2C; --vermell: #a1260d; --be: #1d6b47; }
 * { box-sizing: border-box; }
 body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif; font-size: 17px; line-height: 1.45; color: var(--text); background: #f4f6f7; }

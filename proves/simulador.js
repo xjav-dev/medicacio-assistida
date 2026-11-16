@@ -80,7 +80,7 @@ function creaEntorn(opcions) {
     const id = 'carpeta' + (++nId);
     const c = { getId: () => id, getName: () => nom,
       createFolder: (n) => creaCarpeta(n),
-      createFile: (blob) => { const fid = 'fitxer' + (++nId); fitxers.set(fid, { blob, pare: id }); return { getId: () => fid }; },
+      createFile: (blob) => { const fid = 'fitxer' + String(++nId).padStart(20, '0'); /* llarg com els ID de Drive */ fitxers.set(fid, { blob, pare: id }); return { getId: () => fid }; },
       getFiles: () => iter([...fitxers.entries()].filter(([k, v]) => v.pare === id && llibres.has(k)).map(([k]) => DriveApp.getFileById(k))) };
     fitxers.set(id, { carpeta: c });
     return c;

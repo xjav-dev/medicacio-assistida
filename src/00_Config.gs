@@ -7,14 +7,14 @@
  * Copyright (c) 2026 xjav-dev
  * Llicència: EUPL-1.2 — vegeu LLICENCIA.txt
  * SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.7.0 · 2026-11-15
+ * Versió: 0.8.0 · 2026-11-16
  */
 
-var VERSIO = '0.7.0';
+var VERSIO = '0.8.0';
 var CODI_APP = 'MEDA';
 var NOM_APP = 'Medicació assistida';
 /** Versió de l'esquema de dades (columnes dels fulls). Canvia només amb una migració. */
-var VERSIO_ESQUEMA = 2;
+var VERSIO_ESQUEMA = 3;
 
 /** Fulls de la base de dades i les seves capçaleres (l'ordre no importa: es llegeix per nom). */
 var FULLS_ = {
@@ -24,7 +24,7 @@ var FULLS_ = {
   Medicaments: ['id', 'nom_es', 'nom_ca', 'actiu', 'dies', 'hora', 'margeAvisMin', 'margeAlertaMin',
     'diesRepeticioZona', 'maxDiesEntreCanvis', 'passos', 'zones', 'vigentDes', 'creat'],
   Registre: ['id', 'medicament', 'mode', 'tipus', 'dataProgramada', 'inici', 'fi', 'estat', 'anteriorRetirat',
-    'zona', 'fotoId', 'senseFotoMotiu', 'dispositiu', 'avisat', 'alertat', 'idClient', 'notes'],
+    'zona', 'fotoId', 'senseFotoMotiu', 'dispositiu', 'avisat', 'alertat', 'idClient', 'notes', 'lat', 'lon', 'precisioGps'],
   Auditoria: ['data', 'qui', 'accio', 'detall'],
   Errors: ['data', 'operacio', 'missatge', 'pila']
 };
@@ -38,6 +38,7 @@ var CONFIG_DEFECTE_ = {
   idiomaAvisos: 'es',         // idioma dels missatges als supervisors: es | ca
   nomUsuaria: '',             // com s'anomena als missatges («la mare», «Maria»…)
   notificarPractiques: 'si',  // si | no
+  guardaUbicacio: 'si',       // si | no: desa la ubicació (GPS) on es posa el pegat
   telegramBot: '',            // nom d'usuari del bot (sense @)
   carpetaFotos: '',
   carpetaAudios: '',

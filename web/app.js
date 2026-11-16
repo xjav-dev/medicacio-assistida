@@ -2,7 +2,7 @@
  * app.js — Medicació assistida · app de la usuària (web instal·lable a l'iPhone).
  * Pantalles: vinculació, inici, assistent pas a pas i final. Cua sense connexió.
  * Copyright (c) 2026 xjav-dev · SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.7.0 · 2026-11-15
+ * Versió: 0.8.0 · 2026-11-16
  */
 (function () {
   'use strict';
@@ -61,6 +61,32 @@
       return veus.filter(function (v) { return v.voiceURI === triada; })[0] || veus[0] || null;
     },
     velocitat: function () { return Number(C.magatzem.get('meda_velocitat')) || 0.9; },
+    ctx: null,
+    /** Prepara el so (l'iPhone només el deixa activar en tocar un botó). */
+    preparaSo: function () {
+      try {
+        var AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return;
+        if (!Veu.ctx) Veu.ctx = new AC();
+        if (Veu.ctx.state === 'suspended') Veu.ctx.resume();
+      } catch (e) { /* sense so */ }
+    },
+    /** Bip suau de dues notes (sinusoidal, volum baix, entrada i sortida graduals). */
+    bip: function () {
+      var ctx = Veu.ctx;
+      if (!ctx) return;
+      try {
+        [[660, 0], [880, 0.22]].forEach(function (n) {
+          var o = ctx.createOscillator(), g = ctx.createGain(), t = ctx.currentTime + n[1];
+          o.type = 'sine'; o.frequency.value = n[0];
+          g.gain.setValueAtTime(0.0001, t);
+          g.gain.exponentialRampToValueAtTime(0.18, t + 0.03);
+          g.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
+          o.connect(g); g.connect(ctx.destination);
+          o.start(t); o.stop(t + 0.32);
+        });
+      } catch (e) { /* sense so */ }
+    },
     tts: function (text, enAcabar) {
       if (!('speechSynthesis' in window) || !text) { if (enAcabar) enAcabar(); return; }
       var u = new SpeechSynthesisUtterance(text);
@@ -175,7 +201,7 @@
     if (!st.testimoni) { st.pantalla = 'vincula'; render(); return; }
     try {
       await enviaCua();
-      var e = await C.api('apiEstatApp', {}, st.testimoni);
+      var e = await C.api('apiEstatApp', { idioma: C.magatzem.get('meda_idioma') || '' }, st.testimoni);
       st.estat = e; st.idioma = e.idioma || 'es'; st.avis = '';
       document.documentElement.lang = st.idioma;
       C.magatzem.set(CLAU_ESTAT, JSON.stringify(e));
@@ -279,8 +305,25 @@
     var pendents = cua().length;
     if (pendents) cos.appendChild(h('p', { class: 'avis' }, T('cuaPendent', { n: pendents })));
     cos.appendChild(boto(T('actualitzar'), function () { st.avis = ''; carregaEstat(); }, 'enllac'));
+    cos.appendChild(triaIdioma());
     if (!esSuport()) cos.appendChild(boto(T('alarma'), function () { st.pantalla = 'alarma'; render(); }, 'enllac petit'));
     mostra(cos);
+  }
+
+  /** La usuària pot canviar l'idioma de l'app (es desa en aquest telèfon). */
+  function triaIdioma() {
+    var opcio = function (codi, nom) {
+      return h('button', { type: 'button', class: 'boto-idioma' + (st.idioma === codi ? ' actiu' : ''), lang: codi,
+        'aria-pressed': st.idioma === codi ? 'true' : 'false',
+        onclick: function () {
+          if (st.idioma === codi) return;
+          C.magatzem.set('meda_idioma', codi);
+          Veu.atura(); Veu.audios = {};
+          st.idioma = codi; document.documentElement.lang = codi;
+          render(); carregaEstat();
+        } }, nom);
+    };
+    return h('div', { class: 'tria-idioma', role: 'group', 'aria-label': 'Idioma' }, '🌐 ', opcio('es', 'Castellano'), opcio('ca', 'Català'));
   }
 
   function fa(segons) { return segons < 90 ? T('faSegons', { n: segons }) : T('faMinuts', { n: Math.round(segons / 60) }); }
@@ -358,6 +401,7 @@
       };
       Veu.precarrega(med.passos);
       demanaWakeLock();
+      demanaUbicacio();
       st.pantalla = 'pas'; render();
     } catch (e) {
       st.pantalla = 'inici';
@@ -365,6 +409,17 @@
       if (e.codi === 'SENSE_PENDENT') { st.avis = ''; carregaEstat(); return; }
       render();
     }
+  }
+
+  /** Ubicació del canvi (si la família ho té activat). Es demana en començar i es fa servir en acabar. */
+  function demanaUbicacio() {
+    var c = st.canvi;
+    if (!c || !st.estat || !st.estat.guardaUbicacio || esSuport() || !navigator.geolocation) return;
+    c.ubicacio = new Promise(function (resol) {
+      navigator.geolocation.getCurrentPosition(function (p) {
+        resol({ lat: p.coords.latitude, lon: p.coords.longitude, precisio: p.coords.accuracy });
+      }, function () { resol(null); }, { enableHighAccuracy: true, timeout: 30000, maximumAge: 120000 });
+    });
   }
 
   async function demanaWakeLock() {
@@ -523,6 +578,7 @@
     var comptar = boto(T('comptar'), function () {
       comptar.disabled = true;
       Veu.atura();
+      Veu.preparaSo();
       var fi = Date.now() + total * 1000;
       var interval = setInterval(function () {
         if (!document.body.contains(xifra)) { clearInterval(interval); return; }
@@ -535,7 +591,8 @@
           fet.disabled = false;
           comptar.disabled = false;
           if (navigator.vibrate) navigator.vibrate(300);
-          Veu.tts(T('jaPot'));
+          Veu.bip();
+          setTimeout(function () { Veu.tts(T('jaPot')); }, 650);
         }
       }, 250);
     }, c.subpas === 'acabat' ? 'secundari' : 'primari gran');
@@ -629,10 +686,13 @@
       if (!c.foto && !c.motiu) c.motiu = T('motiuSuport');
     }
     informaProgres('acabat', '');
+    // Ubicació: s'espera com a molt 5 segons més; si no n'hi ha, el canvi es desa igualment.
+    var gps = c.ubicacio ? await Promise.race([c.ubicacio, new Promise(function (r) { setTimeout(function () { r(null); }, 5000); })]) : null;
     var dades = {
       medicament: c.med.id, tipus: c.tipus, mode: c.mode, dataProgramada: c.dataProgramada, idClient: c.idClient,
       anteriorRetirat: c.anteriorRetirat || '', zona: teZona ? c.zona : '', inici: c.inici,
-      foto: c.foto || '', senseFotoMotiu: c.foto ? '' : c.motiu
+      foto: c.foto || '', senseFotoMotiu: c.foto ? '' : c.motiu,
+      lat: gps ? gps.lat : '', lon: gps ? gps.lon : '', precisio: gps ? gps.precisio : ''
     };
     desaCua(cua().concat([{ op: 'apiCompletaCanvi', dades: dades }]));
     var r = await enviaCua();

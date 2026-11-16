@@ -8,7 +8,7 @@
  * Copyright (c) 2026 xjav-dev
  * Llicència: EUPL-1.2 — vegeu LLICENCIA.txt
  * SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.7.0 · 2026-11-15
+ * Versió: 0.8.0 · 2026-11-16
  */
 
 /** Operacions que es poden cridar sense sessió (protegides per codis d'un sol ús). */
@@ -107,7 +107,7 @@ function apiVinculaDispositiu() {
 // ---- App de la usuària ----
 
 function apiEstatApp() {
-  return executa_('apiEstatApp', function (ctx) { return estatApp_(ctx); });
+  return executa_('apiEstatApp', function (ctx, d) { return estatApp_(ctx, d); });
 }
 
 function apiIniciaCanvi() {

@@ -9,7 +9,7 @@
  * Copyright (c) 2026 xjav-dev
  * Llicència: EUPL-1.2 — vegeu LLICENCIA.txt
  * SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.5.0 · 2026-11-15
+ * Versió: 0.8.0 · 2026-11-16
  */
 
 function configPanel_() {
@@ -18,6 +18,7 @@ function configPanel_() {
     config: {
       estat: cfg.estat === 'ACTIU' ? 'ACTIU' : 'DEMO', dataInici: cfg.dataInici, idioma: cfg.idioma,
       idiomaAvisos: cfg.idiomaAvisos, nomUsuaria: cfg.nomUsuaria, notificarPractiques: cfg.notificarPractiques,
+      guardaUbicacio: cfg.guardaUbicacio !== 'no',
       telegramBot: cfg.telegramBot, telegramConfigurat: !!tokenTelegram_(), urlPanel: cfg.urlPanel,
       entorn: PropertiesService.getScriptProperties().getProperty('ENTORN') || 'desenvolupament',
       versio: VERSIO
@@ -52,6 +53,7 @@ function desaConfigGeneral_(ctx, dades) {
   if (dades.idiomaAvisos !== undefined) canvis.idiomaAvisos = dades.idiomaAvisos === 'ca' ? 'ca' : 'es';
   if (dades.nomUsuaria !== undefined) canvis.nomUsuaria = String(dades.nomUsuaria).trim().slice(0, 60);
   if (dades.notificarPractiques !== undefined) canvis.notificarPractiques = dades.notificarPractiques ? 'si' : 'no';
+  if (dades.guardaUbicacio !== undefined) canvis.guardaUbicacio = dades.guardaUbicacio ? 'si' : 'no';
   if (dades.urlPanel !== undefined) {
     var u = String(dades.urlPanel).trim();
     if (u && !/^https:\/\/[^\s"<>]+$/.test(u)) throw errorApp_('DADES', 'L\'adreça del panell ha de començar per https://');

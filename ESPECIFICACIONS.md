@@ -1,6 +1,6 @@
 # Especificaciones — Medicación asistida (`medicacio-assistida`, código `MEDA`)
 
-Versión del documento: 0.7.0 · 2026-11-15
+Versión del documento: 0.8.0 · 2026-11-16
 
 ## 1. Objetivo
 
@@ -87,6 +87,12 @@ anterior?», es obligatorio y queda registrado.
   copia previa, frase escrita, testimonio de 60 s, fotos a la papelera, auditoría.
 - **CU-18 Menú de la Hoja** con las acciones de instalación (solo la cuenta que
   la abre y está identificada).
+- **CU-19 Ubicación del cambio.** Al terminar un cambio real o de práctica en un
+  teléfono de la usuaria se guarda la posición GPS (si hay permiso y señal, máx. 5 s
+  de espera). Desactivable en Ajustes.
+- **CU-20 Idioma elegido por la usuaria** desde el inicio de la app (por teléfono).
+- **CU-21 Importar grabaciones** de varios pasos a la vez, asignadas por el nombre
+  del archivo.
 - **CU-09 Sin conexión.** Si al terminar no hay conexión, el cambio se guarda en
   el iPhone y se envía al recuperarla.
 
@@ -98,7 +104,7 @@ anterior?», es obligatorio y queda registrado.
 | `Supervisors` | id, nom, correu, rol, perCorreu, perTelegram, telegramChat, actiu, versio, creat |
 | `Dispositius` | id, nom, tipus (usuaria / suport), actiu, versio, creat, darreraConnexio |
 | `Medicaments` | id, nom_es, nom_ca, actiu, dies, hora, margeAvisMin, margeAlertaMin, diesRepeticioZona, maxDiesEntreCanvis, passos (JSON), zones (JSON), vigentDes, creat |
-| `Registre` | id, medicament, mode, tipus, dataProgramada, inici, fi, estat, anteriorRetirat, zona, fotoId, senseFotoMotiu, dispositiu, avisat, alertat, idClient, notes |
+| `Registre` | id, medicament, mode, tipus, dataProgramada, inici, fi, estat, anteriorRetirat, zona, fotoId, senseFotoMotiu, dispositiu, avisat, alertat, idClient, notes, lat, lon, precisioGps |
 | `Auditoria` | data, qui, accio, detall |
 | `Errors` | data, operacio, missatge, pila |
 
@@ -174,14 +180,23 @@ Secretos en Script Properties: `SECRET_HMAC`, `TELEGRAM_TOKEN`,
   de Siri ni las descargadas (mejoradas/premium). Se elige la mejor disponible y la
   familia puede fijarla por teléfono; para una voz natural, la solución son las
   grabaciones de la familia (ya existentes por paso).
-- **DD-010 Idiomas.** App de la usuaria en castellano o catalán (lo elige el
-  administrador). Panel en castellano.
+- **DD-010 Idiomas.** App de la usuaria en castellano o catalán: el administrador
+  fija el idioma por defecto y la usuaria lo puede cambiar en su teléfono (0.8.0).
+  Panel en castellano.
+- **DD-022 Ubicación (0.8.0).** Se guarda dónde se pone el parche para poder
+  comprobarlo. Es un dato personal más: solo con el permiso del iPhone, solo en
+  teléfonos de la usuaria, se valida en el servidor (rango y 6 decimales), se puede
+  desactivar y no se manda en los mensajes a la familia. Si falla, el cambio se
+  guarda igual.
+- **DD-023 Bip (0.8.0).** Sonido generado con Web Audio (sin archivos), preparado en
+  el toque de «Empezar a contar» porque el iPhone solo permite sonido tras un toque.
 
 ## 7. Privacidad
 
 Datos de salud de una persona: la Hoja y las fotos quedan en el Drive del
 propietario, sin compartir. Las fotos solo se ven desde el panel con sesión o en
 los mensajes a supervisores. Telegram guarda copia de los mensajes enviados.
+La ubicación del cambio solo se ve en el historial del panel (con sesión).
 
 ## 8. Criterios de aceptación
 

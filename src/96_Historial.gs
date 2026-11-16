@@ -8,11 +8,28 @@
  * Copyright (c) 2026 xjav-dev
  * Llicència: EUPL-1.2 — vegeu LLICENCIA.txt
  * SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.7.0 · 2026-11-15
+ * Versió: 0.8.0 · 2026-11-16
  */
 
 /** @type {Array<{versio: string, data: string, resum: string, migracio: string, canvis: Object<string, string[]>}>} */
 const HISTORIAL = [
+  {
+    "versio": "0.8.0",
+    "data": "2026-11-16",
+    "resum": "Bip en acabar els cronòmetres, ubicació GPS del pegat, canvi d'idioma des de l'app i importació en bloc de les gravacions dels passos.",
+    "migracio": "Sí (migra_2_a_3, esquema 2 → 3: columnes lat, lon i precisioGps a Registre)",
+    "canvis": {
+      "Afegit": [
+        "Bip suau (dues notes curtes) en acabar els temporitzadors de 15 i 30 s, abans de la veu.",
+        "Ubicació GPS on es posa el pegat: es demana en començar el canvi i es desa en acabar (latitud, longitud i precisió). A l'historial del panell, columna «Lugar» amb enllaç al mapa. Es pot desactivar a Ajustes («Guardar la ubicación…»). Mai als telèfons de suport.",
+        "Botons «Castellano / Català» a l'inici de l'app: la usuaria pot canviar l'idioma (es desa al telèfon; l'idioma de l'administrador queda com a valor per defecte).",
+        "Panell → Medicación → Pasos: «📥 Importar grabaciones…» puja diversos àudios de cop i els assigna al pas pel nom del fitxer (Paso_1, pas-2, step3…)."
+      ],
+      "Canviat": [
+        "Els àudios .m4a s'accepten amb el tipus audio/mp4 (el que reprodueix l'iPhone)."
+      ]
+    }
+  },
   {
     "versio": "0.7.0",
     "data": "2026-11-15",

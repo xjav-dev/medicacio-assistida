@@ -1,6 +1,6 @@
 # Manual — Medicación asistida
 
-Versión 0.7.0 · 2026-11-15
+Versión 0.8.0 · 2026-11-16
 
 ## 1. Qué es
 
@@ -125,13 +125,22 @@ parche» → **Empezar**. Cada paso se lee en voz alta y tiene «Repetir»:
 2. Zona propuesta: el dibujo muestra solo esa zona (de frente o de espaldas); puede elegir otra libre.
 3. Piel limpia y seca.
 4. Parche blanco (sobre pequeño) y presionar 15 s con temporizador.
-5. Cubierta ovalada (sobre grande) y presionar 30 s.
+5. Cubierta ovalada (sobre grande) y presionar 30 s. Al acabar cada temporizador
+   suena un bip suave y la voz dice que ya puede soltar.
 6. Foto con la cámara en directo (no se puede elegir de la galería). Si no puede
    (zona de la espalda…), «No puedo hacer la foto» y elige el motivo.
 7. Lavarse las manos.
 
 Al terminar sale una felicitación distinta cada vez, con confeti, y la racha de cambios
 seguidos sin fallar (con medallas a los 3, 5, 10, 20, 30, 50 y 100).
+
+**Idioma**: abajo, en el inicio, los botones **Castellano / Català** cambian el idioma
+solo en ese teléfono (por defecto, el que eligió el administrador).
+
+**Ubicación**: la primera vez que empiece un cambio, el iPhone preguntará si deja usar
+la ubicación: responda **Permitir**. Se guarda dónde se puso el parche (en el
+historial, columna «Lugar», con enlace al mapa). Si no la da o no hay señal, el cambio
+se guarda igual, sin lugar. Se puede desactivar en **Ajustes**.
 
 La app ofrece el cambio desde 60 minutos antes de la hora. Si **se le cae el
 parche**: botón «Se me ha caído el parche»; no cambia los días fijos.
@@ -169,6 +178,10 @@ teléfono y se envía solo al volver la conexión.
   formato que el diario en papel, para el médico).
 - **Medicación** (administradores): días, hora, márgenes de aviso, zonas, pasos,
   voz y grabaciones. Se pueden añadir otros medicamentos.
+- **Grabaciones de los pasos**: en **Medicación → Pasos**, «📥 Importar grabaciones…»,
+  elija el idioma y seleccione todos los audios de golpe. El número del nombre del
+  archivo indica el paso (`Paso_1.m4a`, `pas-2.m4a`…); antes de subir se ve qué audio
+  va a cada paso. Con grabación, la app la reproduce en lugar de la voz del teléfono.
 - **Personas**: alta y baja, rol, canales, vincular Telegram, mensaje de prueba.
 - **Teléfonos** (todos): enlace y QR de la app; vincular (los supervisores, solo de
   apoyo). Los administradores cambian el tipo, desvinculan y obtienen el enlace para el atajo.
