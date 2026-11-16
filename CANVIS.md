@@ -6,6 +6,16 @@ semàntic (MAJOR.MENOR.PEGAT).
 
 ## [Sense publicar]
 
+## [0.9.2] · 2026-11-16
+Resum: la pantalla inicial de l'app mostra la versió de la web i la del servidor.
+Migració d'esquema: no (esquema 3).
+
+### Afegit
+- Pantalla inicial de l'app: «Versión: app X · servidor Y» a baix, en taronja si no coincideixen (p. ex. web actualitzada i servidor sense publicar).
+- Peu del panell: versió de la web i del servidor.
+- Prova que la versió de la web (comu.js i sw.js) coincideix amb la del servidor.
+
+
 ## [0.9.1] · 2026-11-16
 Resum: es retiren de la web pública les gravacions dels passos de la 0.9.0.
 Migració d'esquema: no (esquema 3).

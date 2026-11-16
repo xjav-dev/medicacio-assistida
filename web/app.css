@@ -1,5 +1,5 @@
 /* app.css — Medicació assistida · app de la usuària. Lletra gran, contrast alt, un botó principal per pantalla.
-   Copyright (c) 2026 xjav-dev · SPDX-License-Identifier: EUPL-1.2 · Versió: 0.8.0 · 2026-11-16 */
+   Copyright (c) 2026 xjav-dev · SPDX-License-Identifier: EUPL-1.2 · Versió: 0.9.2 · 2026-11-16 */
 :root {
   --verd: #1C7981; --verd-fosc: #125960; --text: #1f2326; --gris: #5b6166; --fons: #ffffff;
   --taronja: #B35F2C; --taronja-fons: #fff1e6; --be-fons: #e8f5ef; --be: #1d6b47; --vora: #d5d9dc;
@@ -144,3 +144,7 @@ svg.cos { width: 100%; height: auto; display: block; }
 .tria-idioma { display: flex; gap: 8px; align-items: center; justify-content: center; margin: 20px 0 4px; font-size: 20px; }
 .boto-idioma { font: inherit; font-size: 20px; min-height: 48px; padding: 8px 16px; border-radius: 12px; border: 2px solid #1C7981; background: #fff; color: #125960; }
 .boto-idioma.actiu { background: #1C7981; color: #fff; font-weight: 700; }
+
+/* Versions (seguiment de què fa servir el telèfon) */
+.versions { text-align: center; color: #6b6d70; font-size: 14px; margin: 24px 0 8px; }
+.versions.diferents { color: #B35F2C; }

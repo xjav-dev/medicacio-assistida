@@ -1,6 +1,6 @@
 # Especificaciones — Medicación asistida (`medicacio-assistida`, código `MEDA`)
 
-Versión del documento: 0.9.1 · 2026-11-16
+Versión del documento: 0.9.2 · 2026-11-16
 
 ## 1. Objetivo
 

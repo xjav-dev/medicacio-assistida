@@ -1,7 +1,7 @@
 /**
  * comu.js — Medicació assistida · utilitats compartides per l'app i el panell.
  * Copyright (c) 2026 xjav-dev · SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.6.0 · 2026-11-15
+ * Versió: 0.9.2 · 2026-11-16
  */
 (function () {
   'use strict';
@@ -123,7 +123,10 @@
     return d.getFullYear() + '-' + dos(d.getMonth() + 1) + '-' + dos(d.getDate()) + ' ' + dos(d.getHours()) + ':' + dos(d.getMinutes());
   }
 
-  window.Comu = { api: api, h: h, buida: buida, magatzem: magatzem, uuid: uuid, deClau: deClau, clau: clau, dos: dos,
+  /** Versió de la web (app i panell). Ha de coincidir amb VERSIO del servidor i amb sw.js (ho comproven les proves). */
+  var VERSIO_WEB = '0.9.2';
+
+  window.Comu = { versioWeb: VERSIO_WEB, api: api, h: h, buida: buida, magatzem: magatzem, uuid: uuid, deClau: deClau, clau: clau, dos: dos,
     servidor: servidor, llegeixServidor: llegeixServidor, desaServidor: desaServidor, urlApi: urlApi,
     paramServidor: paramServidor, clauServidor: clauServidor };
 })();

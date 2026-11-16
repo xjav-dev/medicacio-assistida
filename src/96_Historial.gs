@@ -8,11 +8,24 @@
  * Copyright (c) 2026 xjav-dev
  * Llicència: EUPL-1.2 — vegeu LLICENCIA.txt
  * SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.9.1 · 2026-11-16
+ * Versió: 0.9.2 · 2026-11-16
  */
 
 /** @type {Array<{versio: string, data: string, resum: string, migracio: string, canvis: Object<string, string[]>}>} */
 const HISTORIAL = [
+  {
+    "versio": "0.9.2",
+    "data": "2026-11-16",
+    "resum": "La pantalla inicial de l'app mostra la versió de la web i la del servidor.",
+    "migracio": "No (esquema 3)",
+    "canvis": {
+      "Afegit": [
+        "Pantalla inicial de l'app: «Versión: app X · servidor Y» a baix, en taronja si no coincideixen (p. ex. web actualitzada i servidor sense publicar).",
+        "Peu del panell: versió de la web i del servidor.",
+        "Prova que la versió de la web (comu.js i sw.js) coincideix amb la del servidor."
+      ]
+    }
+  },
   {
     "versio": "0.9.1",
     "data": "2026-11-16",

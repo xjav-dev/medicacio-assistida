@@ -8,7 +8,7 @@
  * Copyright (c) 2026 xjav-dev
  * Llicència: EUPL-1.2 — vegeu LLICENCIA.txt
  * SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.9.1 · 2026-11-16
+ * Versió: 0.9.2 · 2026-11-16
  */
 
 // ---- Medicaments ----
@@ -104,7 +104,7 @@ function estatApp_(ctx, d) {
   });
   return {
     estat: actiu ? 'ACTIU' : 'DEMO', estatSistema: cfg.estat === 'ACTIU' ? 'ACTIU' : 'DEMO',
-    idioma: idioma, idiomaSistema: idiomaSistema, ara: clau_(ara), araMs: ara.getTime(),
+    versio: VERSIO, idioma: idioma, idiomaSistema: idiomaSistema, ara: clau_(ara), araMs: ara.getTime(),
     guardaUbicacio: cfg.guardaUbicacio !== 'no' && !suport,
     dispositiu: { nom: ctx.nom, tipus: suport ? 'suport' : 'usuaria' },
     seguiment: suport ? progressos_() : null,

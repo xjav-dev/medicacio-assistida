@@ -2,7 +2,7 @@
  * panel.js — Medicació assistida · panell de supervisors i administradors.
  * Tot es fa per l'API: ningú no obre la Hoja de càlcul.
  * Copyright (c) 2026 xjav-dev · SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.8.0 · 2026-11-16
+ * Versió: 0.9.2 · 2026-11-16
  */
 (function () {
   'use strict';
@@ -242,7 +242,7 @@
         st.avisAcceptat = true;
       }
       st.cfg = await crida('apiConfig', {});
-      peuText.textContent = 'Medicación asistida · versión ' + st.cfg.config.versio;
+      peuText.textContent = 'Medicación asistida · versión web ' + C.versioWeb + ' · servidor ' + st.cfg.config.versio;
       if (st.cfg.config.entorn !== 'produccio') franja.appendChild(h('div', { class: 'franja-entorn' }, 'Entorno de desarrollo'));
       if (st.cfg.config.estat === 'DEMO') franja.appendChild(h('div', { class: 'franja-demo' }, 'MODO PRÁCTICA: el teléfono está en modo práctica'));
       await ({ inici: vistaInici, historial: vistaHistorial, medicacio: vistaMedicacio, persones: vistaPersones,

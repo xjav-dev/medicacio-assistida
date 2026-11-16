@@ -102,6 +102,13 @@ comprova(e.estat === 'DEMO' && e.medicaments[0].passos.length === 9 && e.medicam
 const eCa = env.post('apiEstatApp', { idioma: 'ca' }, tDis).dades;
 comprova(eCa.idioma === 'ca' && eCa.idiomaSistema === 'es' && /Traieu-vos/.test(eCa.medicaments[0].passos[0].text), 'la usuària pot triar el català al seu telèfon', eCa.idioma);
 comprova(e.guardaUbicacio === true, 'per defecte es desa la ubicació');
+comprova(e.versio === g.VERSIO, 'l\'estat de l\'app porta la versió del servidor', e.versio);
+{
+  const fs = require('fs'), path = require('path'), web = path.join(__dirname, '..', 'web');
+  const vWeb = (/var VERSIO_WEB = '([^']+)'/.exec(fs.readFileSync(path.join(web, 'comu.js'), 'utf8')) || [])[1];
+  const vCau = (/var VERSIO_CAU = 'meda-([^']+)'/.exec(fs.readFileSync(path.join(web, 'sw.js'), 'utf8')) || [])[1];
+  comprova(vWeb === g.VERSIO && vCau === g.VERSIO, 'la versió de la web (comu.js i sw.js) coincideix amb la del servidor', { vWeb, vCau, servidor: g.VERSIO });
+}
 comprova(e.medicaments[0].passos.every((p) => p.audio === ''), 'sense gravacions pujades, els passos fan servir la veu del telèfon');
 const FOTO = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 1, 2, 3]).toString('base64');
 r = env.post('apiIniciaCanvi', { medicament: medId, tipus: 'programat' }, tDis);

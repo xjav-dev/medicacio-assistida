@@ -1,6 +1,6 @@
 # Manual — Medicación asistida
 
-Versión 0.9.1 · 2026-11-16
+Versión 0.9.2 · 2026-11-16
 
 ## 1. Qué es
 
@@ -141,6 +141,11 @@ solo en ese teléfono (por defecto, el que eligió el administrador).
 la ubicación: responda **Permitir**. Se guarda dónde se puso el parche (en el
 historial, columna «Lugar», con enlace al mapa). Si no la da o no hay señal, el cambio
 se guarda igual, sin lugar. Se puede desactivar en **Ajustes**.
+
+**Versión**: abajo del todo, en el inicio, pone la versión de la app (web) y la del
+servidor que usa ese teléfono. Si salen en naranja es que no coinciden: falta publicar
+el servidor o el teléfono aún no ha cargado la web nueva (cierre la app y ábrala otra
+vez). El pie del panel también muestra las dos.
 
 La app ofrece el cambio desde 60 minutos antes de la hora. Si **se le cae el
 parche**: botón «Se me ha caído el parche»; no cambia los días fijos.

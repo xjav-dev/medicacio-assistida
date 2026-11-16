@@ -2,7 +2,7 @@
  * app.js — Medicació assistida · app de la usuària (web instal·lable a l'iPhone).
  * Pantalles: vinculació, inici, assistent pas a pas i final. Cua sense connexió.
  * Copyright (c) 2026 xjav-dev · SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.9.1 · 2026-11-16
+ * Versió: 0.9.2 · 2026-11-16
  */
 (function () {
   'use strict';
@@ -310,7 +310,15 @@
     cos.appendChild(boto(T('actualitzar'), function () { st.avis = ''; carregaEstat(); }, 'enllac'));
     cos.appendChild(triaIdioma());
     if (!esSuport()) cos.appendChild(boto(T('alarma'), function () { st.pantalla = 'alarma'; render(); }, 'enllac petit'));
+    cos.appendChild(versions(e.versio));
     mostra(cos);
+  }
+
+  /** Versions de la web i del servidor, per saber què fa servir aquest telèfon (si no coincideixen, es marca). */
+  function versions(servidor) {
+    var diferents = servidor && servidor !== C.versioWeb;
+    return h('p', { class: 'versions' + (diferents ? ' diferents' : '') },
+      T('versions', { web: C.versioWeb, servidor: servidor || '—' }));
   }
 
   /** La usuària pot canviar l'idioma de l'app (es desa en aquest telèfon). */
