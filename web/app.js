@@ -2,7 +2,7 @@
  * app.js — Medicació assistida · app de la usuària (web instal·lable a l'iPhone).
  * Pantalles: vinculació, inici, assistent pas a pas i final. Cua sense connexió.
  * Copyright (c) 2026 xjav-dev · SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.9.0 · 2026-11-16
+ * Versió: 0.9.1 · 2026-11-16
  */
 (function () {
   'use strict';
@@ -119,15 +119,6 @@
     precarrega: function (passos) {
       passos.forEach(function (p) {
         if (!p.audio || Veu.audios[p.audio]) return;
-        var web = /^web:((?:es|ca)\/paso-\d{1,2}\.m4a)$/.exec(p.audio);
-        if (web) { // gravació inclosa a la web (es baixa sencera perquè el service worker la pugui desar)
-          fetch('audios/' + web[1]).then(function (r) { if (!r.ok) throw new Error(r.status); return r.blob(); }).then(function (b) {
-            var a = new Audio(URL.createObjectURL(b));
-            a.preload = 'auto';
-            Veu.audios[p.audio] = a;
-          }).catch(function () { /* es farà servir la veu del telèfon */ });
-          return;
-        }
         C.api('apiAudio', { id: p.audio }, st.testimoni).then(function (d) {
           var a = new Audio('data:' + d.mime + ';base64,' + d.b64);
           a.preload = 'auto';

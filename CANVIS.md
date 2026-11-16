@@ -6,6 +6,14 @@ semàntic (MAJOR.MENOR.PEGAT).
 
 ## [Sense publicar]
 
+## [0.9.1] · 2026-11-16
+Resum: es retiren de la web pública les gravacions dels passos de la 0.9.0.
+Migració d'esquema: no (esquema 3).
+
+### Eliminat
+- Gravacions de `web/audios/es/` i el seu ús com a veu per defecte. Eren veu sintètica d'un servei les condicions del qual no permeten repartir l'àudio com a fitxer solt; també s'han tret de l'historial del repositori. Les gravacions es pugen al Drive de cada família des del panell (Pasos → «Importar grabaciones…»).
+
+
 ## [0.9.0] · 2026-11-16
 Resum: els passos per defecte tenen veu gravada en castellà inclosa a la web.
 Migració d'esquema: no (esquema 3).

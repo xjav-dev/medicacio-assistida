@@ -8,11 +8,22 @@
  * Copyright (c) 2026 xjav-dev
  * Llicència: EUPL-1.2 — vegeu LLICENCIA.txt
  * SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.9.0 · 2026-11-16
+ * Versió: 0.9.1 · 2026-11-16
  */
 
 /** @type {Array<{versio: string, data: string, resum: string, migracio: string, canvis: Object<string, string[]>}>} */
 const HISTORIAL = [
+  {
+    "versio": "0.9.1",
+    "data": "2026-11-16",
+    "resum": "Es retiren de la web pública les gravacions dels passos de la 0.9.0.",
+    "migracio": "No (esquema 3)",
+    "canvis": {
+      "Eliminat": [
+        "Gravacions de web/audios/es/ i el seu ús com a veu per defecte. Eren veu sintètica d'un servei les condicions del qual no permeten repartir l'àudio com a fitxer solt; també s'han tret de l'historial del repositori. Les gravacions es pugen al Drive de cada família des del panell (Pasos → «Importar grabaciones…»)."
+      ]
+    }
+  },
   {
     "versio": "0.9.0",
     "data": "2026-11-16",
