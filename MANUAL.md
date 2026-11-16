@@ -1,6 +1,6 @@
 # Manual — Medicación asistida
 
-Versión 0.8.0 · 2026-11-16
+Versión 0.9.0 · 2026-11-16
 
 ## 1. Qué es
 
@@ -182,6 +182,9 @@ teléfono y se envía solo al volver la conexión.
   elija el idioma y seleccione todos los audios de golpe. El número del nombre del
   archivo indica el paso (`Paso_1.m4a`, `pas-2.m4a`…); antes de subir se ve qué audio
   va a cada paso. Con grabación, la app la reproduce en lugar de la voz del teléfono.
+  Los pasos por defecto ya traen voz grabada en castellano (incluida en la web): no
+  hace falta subir nada. Si cambia el texto de un paso, ese paso vuelve a la voz del
+  teléfono hasta que le suba una grabación nueva.
 - **Personas**: alta y baja, rol, canales, vincular Telegram, mensaje de prueba.
 - **Teléfonos** (todos): enlace y QR de la app; vincular (los supervisores, solo de
   apoyo). Los administradores cambian el tipo, desvinculan y obtienen el enlace para el atajo.

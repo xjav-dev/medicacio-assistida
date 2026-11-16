@@ -6,6 +6,17 @@ semàntic (MAJOR.MENOR.PEGAT).
 
 ## [Sense publicar]
 
+## [0.9.0] · 2026-11-16
+Resum: els passos per defecte tenen veu gravada en castellà inclosa a la web.
+Migració d'esquema: no (esquema 3).
+
+### Afegit
+- Gravacions dels 9 passos per defecte en castellà a `web/audios/es/`. Si un pas no té gravació pròpia i el seu text és el per defecte, l'app fa servir la de la web (en canviar el text, torna a la veu del telèfon). Les gravacions pròpies del panell tenen prioritat.
+
+### Corregit
+- En el pas de la zona amb gravació, la veu del telèfon diu la zona en acabar l'àudio (abans no es deia).
+
+
 ## [0.8.0] · 2026-11-16
 Resum: bip en acabar els cronòmetres, ubicació GPS del pegat, canvi d'idioma des de l'app i importació en bloc de les gravacions dels passos.
 Migració d'esquema: sí (migra_2_a_3, esquema 2 → 3: columnes lat, lon i precisioGps a Registre).

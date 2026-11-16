@@ -102,6 +102,10 @@ comprova(e.estat === 'DEMO' && e.medicaments[0].passos.length === 9 && e.medicam
 const eCa = env.post('apiEstatApp', { idioma: 'ca' }, tDis).dades;
 comprova(eCa.idioma === 'ca' && eCa.idiomaSistema === 'es' && /Traieu-vos/.test(eCa.medicaments[0].passos[0].text), 'la usuària pot triar el català al seu telèfon', eCa.idioma);
 comprova(e.guardaUbicacio === true, 'per defecte es desa la ubicació');
+comprova(e.medicaments[0].passos.every((p, i) => p.audio === 'web:es/paso-' + (i + 1) + '.m4a'), 'en castellano, els passos per defecte fan servir les gravacions de la web', e.medicaments[0].passos.map((p) => p.audio));
+comprova(eCa.medicaments[0].passos.every((p) => p.audio === ''), 'en català no hi ha gravacions de la web');
+comprova(g.audioWeb_({ text_es: 'Un text canviat per la família.' }, 'es') === '', 'un pas amb el text canviat no fa servir la gravació de la web');
+comprova(g.audioWeb_({ text_es: ' Lávese las manos con agua y jabón. ' }, 'es') === 'web:es/paso-9.m4a', 'la gravació va pel text, no per la posició');
 const FOTO = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 1, 2, 3]).toString('base64');
 r = env.post('apiIniciaCanvi', { medicament: medId, tipus: 'programat' }, tDis);
 comprova(r.ok && r.dades.mode === 'DEMO' && r.dades.zonaSuggerida === 'A', 'iniciar pràctica', r);

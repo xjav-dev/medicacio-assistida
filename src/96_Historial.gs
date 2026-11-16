@@ -8,11 +8,25 @@
  * Copyright (c) 2026 xjav-dev
  * Llicència: EUPL-1.2 — vegeu LLICENCIA.txt
  * SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.8.0 · 2026-11-16
+ * Versió: 0.9.0 · 2026-11-16
  */
 
 /** @type {Array<{versio: string, data: string, resum: string, migracio: string, canvis: Object<string, string[]>}>} */
 const HISTORIAL = [
+  {
+    "versio": "0.9.0",
+    "data": "2026-11-16",
+    "resum": "Els passos per defecte tenen veu gravada en castellà inclosa a la web.",
+    "migracio": "No (esquema 3)",
+    "canvis": {
+      "Afegit": [
+        "Gravacions dels 9 passos per defecte en castellà a web/audios/es/. Si un pas no té gravació pròpia i el seu text és el per defecte, l'app fa servir la de la web (en canviar el text, torna a la veu del telèfon). Les gravacions pròpies del panell tenen prioritat."
+      ],
+      "Corregit": [
+        "En el pas de la zona amb gravació, la veu del telèfon diu la zona en acabar l'àudio (abans no es deia)."
+      ]
+    }
+  },
   {
     "versio": "0.8.0",
     "data": "2026-11-16",

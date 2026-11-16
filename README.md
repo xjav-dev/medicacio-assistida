@@ -12,7 +12,8 @@ hecho bien.
 - **App para el iPhone** (`web/index.html`): web que se añade a la pantalla de
   inicio, sin App Store. Asistente paso a paso con voz (castellano o catalán),
   temporizadores, zona del cuerpo propuesta sin repetir en 14 días, foto con la
-  cámara en directo, modo práctica y felicitaciones.
+  cámara en directo, modo práctica y felicitaciones. Los pasos por defecto
+  tienen voz grabada en castellano (`web/audios/es/`).
 - **Panel de la familia** (`web/panel.html`): avisos, historial con fotos,
   impresión del diario, configuración, personas, teléfono, copias de seguridad.
 - **Servidor** (`src/`): Google Apps Script vinculado a una Hoja de cálculo de
@@ -55,6 +56,8 @@ teléfono viendo en qué paso va, y el enlace y el código QR de la app en el pa
 Puede usarla, estudiarla, modificarla y compartirla; si distribuye una versión
 modificada, o la ofrece como servicio en red, debe publicar sus cambios con la
 misma licencia u otra compatible.
+
+Las grabaciones de `web/audios/` son del autor y se publican con la misma licencia.
 
 Incluye [qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator)
 © Kazuhiko Arase, con licencia MIT (`web/vendor/qrcode.js`). «QR Code» es marca

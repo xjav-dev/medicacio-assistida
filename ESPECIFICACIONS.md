@@ -1,6 +1,6 @@
 # Especificaciones — Medicación asistida (`medicacio-assistida`, código `MEDA`)
 
-Versión del documento: 0.8.0 · 2026-11-16
+Versión del documento: 0.9.0 · 2026-11-16
 
 ## 1. Objetivo
 
@@ -188,6 +188,11 @@ Secretos en Script Properties: `SECRET_HMAC`, `TELEGRAM_TOKEN`,
   teléfonos de la usuaria, se valida en el servidor (rango y 6 decimales), se puede
   desactivar y no se manda en los mensajes a la familia. Si falla, el cambio se
   guarda igual.
+- **DD-024 Grabaciones en la web (0.9.0).** Los 9 pasos por defecto tienen voz
+  grabada en castellano en `web/audios/es/` (públicas, como el resto de la web). Se
+  asignan por el texto exacto del paso, no por su posición, para que una grabación
+  nunca diga algo distinto de lo que pone la pantalla. Prioridad: grabación propia
+  (Drive) → grabación de la web → voz del teléfono.
 - **DD-023 Bip (0.8.0).** Sonido generado con Web Audio (sin archivos), preparado en
   el toque de «Empezar a contar» porque el iPhone solo permite sonido tras un toque.
 

@@ -8,7 +8,7 @@
  * Copyright (c) 2026 xjav-dev
  * Llicència: EUPL-1.2 — vegeu LLICENCIA.txt
  * SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.8.0 · 2026-11-16
+ * Versió: 0.9.0 · 2026-11-16
  */
 
 // ---- Medicaments ----
@@ -95,7 +95,7 @@ function estatApp_(ctx, d) {
       ratxa: ratxa_(reals),
       passos: m.passos.map(function (p) {
         return { id: p.id, tipus: p.tipus, segons: Number(p.segons) || 0, colocacio: !!p.colocacio,
-          text: p['text_' + idioma] || p.text_es, audio: p['audio_' + idioma] || '' };
+          text: p['text_' + idioma] || p.text_es, audio: p['audio_' + idioma] || audioWeb_(p, idioma) };
       }),
       zones: m.zones.filter(function (z) { return z.activa !== false; }).map(function (z) {
         return { codi: z.codi, nom: z['nom_' + idioma] || z.nom_es };
@@ -411,4 +411,19 @@ function historial_(dades) {
     return r.mode === mode && quan >= des && quan <= fins;
   }).sort(function (a, b) { return (a.fi || a.dataProgramada) < (b.fi || b.dataProgramada) ? 1 : -1; })
     .slice(0, 1000).map(function (r) { return registrePublic_(r, meds[r.medicament], 'es'); });
+}
+
+/**
+ * Gravació inclosa a la web per a un pas sense gravació pròpia: només si el text del
+ * pas és exactament el d'un pas per defecte (si la família l'ha canviat, la gravació
+ * ja no hi correspondria). Retorna «web:es/paso-N.m4a» o ''.
+ */
+function audioWeb_(p, idioma) {
+  if (GRAVACIONS_WEB_.indexOf(idioma) < 0) return '';
+  var text = String(p['text_' + idioma] || '').trim();
+  if (!text) return '';
+  for (var i = 0; i < PASSOS_DEFECTE_.length; i++) {
+    if (String(PASSOS_DEFECTE_[i]['text_' + idioma] || '').trim() === text) return 'web:' + idioma + '/paso-' + (i + 1) + '.m4a';
+  }
+  return '';
 }

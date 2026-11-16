@@ -7,10 +7,10 @@
  * Copyright (c) 2026 xjav-dev
  * Llicència: EUPL-1.2 — vegeu LLICENCIA.txt
  * SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.8.0 · 2026-11-16
+ * Versió: 0.9.0 · 2026-11-16
  */
 
-var VERSIO = '0.8.0';
+var VERSIO = '0.9.0';
 var CODI_APP = 'MEDA';
 var NOM_APP = 'Medicació assistida';
 /** Versió de l'esquema de dades (columnes dels fulls). Canvia només amb una migració. */

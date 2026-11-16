@@ -8,7 +8,7 @@
  * Copyright (c) 2026 xjav-dev
  * Llicència: EUPL-1.2 — vegeu LLICENCIA.txt
  * SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.7.0 · 2026-11-15
+ * Versió: 0.9.0 · 2026-11-16
  */
 
 var TEXTOS_ = {
@@ -72,6 +72,9 @@ function text_(idioma, clau, valors) {
  * Passos per defecte d'un pegat transdèrmic amb coberta (fullet del medicament).
  * tipus: retirada | zona | info | temporitzador | foto. colocacio: en pràctica s'avisa de no posar-se res.
  */
+/** Idiomes amb gravacions dels passos per defecte a web/audios/<idioma>/paso-N.m4a. */
+var GRAVACIONS_WEB_ = ['es'];
+
 var PASSOS_DEFECTE_ = [
   { id: 'p1', tipus: 'retirada', segons: 0, colocacio: false,
     text_es: 'Quítese el parche que lleva puesto, junto con la cubierta beige. Dóblelo por la mitad, con el lado que pega hacia dentro, y tírelo.',
