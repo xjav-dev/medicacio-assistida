@@ -1,7 +1,7 @@
 /**
  * textos-app.js — Medicació assistida · textos de l'app de la usuària (castellà i català).
  * Copyright (c) 2026 xjav-dev · SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.9.2 · 2026-11-16
+ * Versió: 0.11.0 · 2026-11-19
  */
 window.TEXTOS_APP = {
   es: {
@@ -60,6 +60,10 @@ window.TEXTOS_APP = {
     si: 'Sí',
     no: 'No',
     actualitzar: 'Actualizar',
+    opcions: 'Opciones',
+    pistaActualitza: 'Para actualizar, deslice la pantalla hacia abajo',
+    estiraActualitza: 'Deslice para actualizar',
+    deixaActualitza: 'Suelte para actualizar',
     versions: 'Versión: app {web} · servidor {servidor}',
     pas: 'Paso {n} de {total}',
     sortir: 'Salir',
@@ -196,6 +200,10 @@ window.TEXTOS_APP = {
     si: 'Sí',
     no: 'No',
     actualitzar: 'Actualitzar',
+    opcions: 'Opcions',
+    pistaActualitza: 'Per actualitzar, llisqueu la pantalla cap avall',
+    estiraActualitza: 'Llisqueu per actualitzar',
+    deixaActualitza: 'Deixeu anar per actualitzar',
     versions: 'Versió: app {web} · servidor {servidor}',
     pas: 'Pas {n} de {total}',
     sortir: 'Sortir',

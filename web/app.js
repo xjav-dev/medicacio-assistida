@@ -2,7 +2,7 @@
  * app.js — Medicació assistida · app de la usuària (web instal·lable a l'iPhone).
  * Pantalles: vinculació, inici, assistent pas a pas i final. Cua sense connexió.
  * Copyright (c) 2026 xjav-dev · SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.10.0 · 2026-11-16
+ * Versió: 0.11.0 · 2026-11-19
  */
 (function () {
   'use strict';
@@ -248,6 +248,7 @@
     if (st.pantalla === 'inici') return pantallaInici();
     if (st.pantalla === 'pas') return pantallaPas();
     if (st.pantalla === 'alarma') return pantallaAlarma();
+    if (st.pantalla === 'opcions') return pantallaOpcions();
     mostra(h('main', { class: 'pantalla centrat' }, h('p', { class: 'text-gran' }, T('carregant'))));
   }
 
@@ -298,7 +299,12 @@
 
   function pantallaInici() {
     var e = st.estat;
-    var cos = h('main', { class: 'pantalla' }, h('h1', {}, T('titol')));
+    var diferents = e && e.versio && e.versio !== C.versioWeb;
+    // A la pantalla inicial només hi ha l'estat i «se me ha caído»; la resta, darrere el botó ⚙️.
+    var cos = h('main', { class: 'pantalla inici' },
+      h('div', { class: 'capcalera' }, h('h1', {}, T('titol')),
+        h('button', { type: 'button', class: 'boto-opcions' + (diferents ? ' marca' : ''), 'aria-label': T('opcions'), title: T('opcions'),
+          onclick: function () { Veu.atura(); st.pantalla = 'opcions'; render(); } }, '⚙️')));
     if (st.avis) cos.appendChild(h('p', { class: 'avis', role: 'alert' }, st.avis));
     if (!e) { cos.appendChild(h('p', { class: 'text-gran' }, T('carregant'))); mostra(cos); return; }
     e.medicaments.forEach(function (m) {
@@ -331,11 +337,20 @@
     if (esSuport()) cos.appendChild(targetaSeguiment(e.seguiment || []));
     var pendents = cua().length;
     if (pendents) cos.appendChild(h('p', { class: 'avis' }, T('cuaPendent', { n: pendents })));
-    cos.appendChild(boto(T('actualitzar'), function () { st.avis = ''; carregaEstat(); }, 'enllac'));
-    cos.appendChild(triaIdioma());
-    if (!esSuport()) cos.appendChild(boto(T('alarma'), function () { st.pantalla = 'alarma'; render(); }, 'enllac petit'));
-    cos.appendChild(versions(e.versio));
+    cos.appendChild(h('p', { class: 'pista-actualitza', 'aria-hidden': 'true' }, T('pistaActualitza')));
     mostra(cos);
+  }
+
+  /** Opcions (botó ⚙️ de l'inici): actualitzar, idioma, alarma i veu, i versions. */
+  function pantallaOpcions() {
+    var e = st.estat || {};
+    mostra(h('main', { class: 'pantalla opcions' },
+      h('h1', {}, T('opcions')),
+      boto('🔄 ' + T('actualitzar'), function () { st.avis = ''; st.pantalla = 'inici'; render(); carregaEstat(); }, 'secundari'),
+      triaIdioma(),
+      esSuport() ? null : boto(T('alarma'), function () { st.pantalla = 'alarma'; st.tornaA = 'opcions'; render(); }, 'secundari'),
+      versions(e.versio),
+      boto(T('tornar'), function () { st.pantalla = 'inici'; render(); }, 'primari gran')));
   }
 
   /** Versions de la web i del servidor, per saber què fa servir aquest telèfon (si no coincideixen, es marca). */
@@ -355,7 +370,7 @@
           C.magatzem.set('meda_idioma', codi);
           Veu.atura(); Veu.audios = {};
           st.idioma = codi; document.documentElement.lang = codi;
-          render(); carregaEstat();
+          render(); carregaEstat();  // es queda a la pantalla on és (opcions)
         } }, nom);
     };
     return h('div', { class: 'tria-idioma', role: 'group', 'aria-label': 'Idioma' }, '🌐 ', opcio('es', 'Castellano'), opcio('ca', 'Català'));
@@ -398,7 +413,7 @@
       h('ol', {}, T('alarmaPassos').map(function (t, i) { return h('li', {}, t, i === 1 ? copia : null, i === 1 ? resultat : null); })),
       h('p', { class: 'avis' }, T('alarmaNota')),
       seccioVeu(),
-      boto(T('tornar'), function () { Veu.atura(); st.pantalla = 'inici'; render(); }, 'secundari')));
+      boto(T('tornar'), function () { Veu.atura(); st.pantalla = st.tornaA || 'inici'; st.tornaA = ''; render(); }, 'secundari')));
   }
 
   /** Per a la família: triar la veu i la velocitat d'aquest telèfon i provar-les. */
@@ -787,6 +802,32 @@
   }
 
   // ---------------- Inici ----------------
+  // Estirar cap avall a la pantalla inicial per actualitzar (l'app instal·lada a l'iPhone no ho fa sola).
+  (function () {
+    var y0 = null, dist = 0, marca = null, LLINDAR = 80;
+    var amaga = function () { if (marca) { marca.remove(); marca = null; } };
+    document.addEventListener('touchstart', function (ev) {
+      y0 = st.pantalla === 'inici' && window.scrollY <= 0 && ev.touches.length === 1 ? ev.touches[0].clientY : null;
+      dist = 0;
+    }, { passive: true });
+    document.addEventListener('touchmove', function (ev) {
+      if (y0 === null) return;
+      dist = ev.touches[0].clientY - y0;
+      if (dist <= 10 || window.scrollY > 0) { amaga(); return; }
+      if (!marca) { marca = h('div', { class: 'estira', role: 'status' }); document.body.appendChild(marca); }
+      marca.style.transform = 'translateY(' + Math.min(dist, LLINDAR + 30) / 2 + 'px)';
+      marca.textContent = dist >= LLINDAR ? '↻ ' + T('deixaActualitza') : '↓ ' + T('estiraActualitza');
+    }, { passive: true });
+    document.addEventListener('touchend', function () {
+      if (y0 !== null && dist >= LLINDAR && st.pantalla === 'inici') {
+        if (marca) marca.textContent = '↻ ' + T('carregant');
+        st.avis = '';
+        carregaEstat().then(amaga, amaga);
+      } else amaga();
+      y0 = null; dist = 0;
+    });
+  })();
+
   document.addEventListener('visibilitychange', function () {
     if (document.visibilityState === 'visible' && st.pantalla === 'inici') carregaEstat();
     if (document.visibilityState === 'visible' && st.wakeLock === null && st.pantalla === 'pas') demanaWakeLock();

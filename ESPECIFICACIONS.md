@@ -1,6 +1,6 @@
 # Especificaciones — Medicación asistida (`medicacio-assistida`, código `MEDA`)
 
-Versión del documento: 0.10.0 · 2026-11-16
+Versión del documento: 0.11.0 · 2026-11-19
 
 ## 1. Objetivo
 
@@ -200,6 +200,11 @@ Secretos en Script Properties: `SECRET_HMAC`, `TELEGRAM_TOKEN`,
   el JSON de zonas del medicamento. El servidor solo acepta claves conocidas e ID con
   forma de ID de Drive, y `apiAudio` solo sirve archivos de la carpeta de audios. La
   app encadena frase a frase: grabación si está descargada, si no la voz del teléfono.
+- **DD-026 Inicio simplificado (0.11.0).** La pantalla de inicio de la usuaria solo
+  tiene el estado y «Se me ha caído el parche». Actualizar se hace deslizando hacia
+  abajo (gesto propio, porque la app instalada en el iPhone no lo trae) y también desde
+  ⚙️; idioma, alarma y voz, y versiones van detrás del botón ⚙️, que lleva un punto
+  naranja si las versiones no coinciden.
 - **DD-023 Bip (0.8.0).** Sonido generado con Web Audio (sin archivos), preparado en
   el toque de «Empezar a contar» porque el iPhone solo permite sonido tras un toque.
 

@@ -6,6 +6,21 @@ semàntic (MAJOR.MENOR.PEGAT).
 
 ## [Sense publicar]
 
+## [0.11.0] · 2026-11-19
+Resum: pantalla inicial de l'app més neta; la resta, darrere un botó ⚙️.
+Migració d'esquema: no (esquema 3).
+
+### Afegit
+- Botó ⚙️ a la pantalla inicial amb «Opciones»: actualitzar, idioma, «Para la familia: alarma y voz» i versions. Punt taronja al botó si les versions de web i servidor no coincideixen.
+- Lliscar cap avall a la pantalla inicial per actualitzar, amb indicador «Deslice / Suelte para actualizar».
+
+### Canviat
+- La pantalla inicial només mostra la targeta d'estat i «Se me ha caído el parche» (i el seguiment als telèfons de suport).
+
+### Eliminat
+- De la pantalla inicial: botó «Actualizar», idioma, enllaç d'alarma i versions (ara a ⚙️).
+
+
 ## [0.10.0] · 2026-11-16
 Resum: es poden gravar les frases que l'app diu fora dels passos i la zona que toca.
 Migració d'esquema: no (esquema 3; nova clau audiosFrases a Config i gravació opcional a cada zona).

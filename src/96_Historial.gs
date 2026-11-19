@@ -8,11 +8,29 @@
  * Copyright (c) 2026 xjav-dev
  * Llicència: EUPL-1.2 — vegeu LLICENCIA.txt
  * SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.10.0 · 2026-11-16
+ * Versió: 0.11.0 · 2026-11-19
  */
 
 /** @type {Array<{versio: string, data: string, resum: string, migracio: string, canvis: Object<string, string[]>}>} */
 const HISTORIAL = [
+  {
+    "versio": "0.11.0",
+    "data": "2026-11-19",
+    "resum": "Pantalla inicial de l'app més neta; la resta, darrere un botó ⚙️.",
+    "migracio": "No (esquema 3)",
+    "canvis": {
+      "Afegit": [
+        "Botó ⚙️ a la pantalla inicial amb «Opciones»: actualitzar, idioma, «Para la familia: alarma y voz» i versions. Punt taronja al botó si les versions de web i servidor no coincideixen.",
+        "Lliscar cap avall a la pantalla inicial per actualitzar, amb indicador «Deslice / Suelte para actualizar»."
+      ],
+      "Canviat": [
+        "La pantalla inicial només mostra la targeta d'estat i «Se me ha caído el parche» (i el seguiment als telèfons de suport)."
+      ],
+      "Eliminat": [
+        "De la pantalla inicial: botó «Actualizar», idioma, enllaç d'alarma i versions (ara a ⚙️)."
+      ]
+    }
+  },
   {
     "versio": "0.10.0",
     "data": "2026-11-16",

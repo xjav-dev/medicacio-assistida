@@ -1,6 +1,6 @@
 # Manual — Medicación asistida
 
-Versión 0.10.0 · 2026-11-16
+Versión 0.11.0 · 2026-11-19
 
 ## 1. Qué es
 
@@ -78,7 +78,7 @@ enlace (y un QR) que ya lleva el servidor. No lo publique.
    - **De apoyo**: siempre en práctica, para acompañarla por teléfono. Cualquier
      supervisor puede vincular el suyo. Lo que se haga en él no se avisa.
 3. La primera foto pedirá permiso para la cámara: pulse «Permitir».
-4. **Voz:** en la app, al pie, **«Para la familia: alarma y voz»** deja elegir la
+4. **Voz:** en la app, botón **⚙️** → **«Para la familia: alarma y voz»** deja elegir la
    voz y la velocidad de ese teléfono y probarlas. El iPhone no deja que una web use
    las voces de Siri ni las descargadas, así que la voz del teléfono suena algo
    robótica. Para una voz natural, grabe los pasos con la voz de la familia: panel
@@ -92,7 +92,7 @@ Una web no puede hacer sonar alarmas; se usa la alarma del iPhone:
 
 1. **Reloj → Alarmas → +**: la misma hora que la medicación, *Repetir* los dos días
    de cambio, *Etiqueta*: «Parche». Así suena hasta que ella la para.
-2. En el iPhone de la usuaria, al pie de la app: **«Para la familia: alarma y voz»**.
+2. En el iPhone de la usuaria, botón **⚙️** de la app → **«Para la familia: alarma y voz»**.
    Enseña el horario y estos pasos, y el botón **«Copiar enlace para Atajos»**
    (también está en el panel: **Teléfonos → Enlace para el atajo**).
 3. **Atajos → Automatización → Nueva automatización → Alarma → «Se detiene»** →
@@ -134,16 +134,23 @@ parche» → **Empezar**. Cada paso se lee en voz alta y tiene «Repetir»:
 Al terminar sale una felicitación distinta cada vez, con confeti, y la racha de cambios
 seguidos sin fallar (con medallas a los 3, 5, 10, 20, 30, 50 y 100).
 
-**Idioma**: abajo, en el inicio, los botones **Castellano / Català** cambian el idioma
-solo en ese teléfono (por defecto, el que eligió el administrador).
+**Pantalla de inicio**: solo muestra el estado (todo está bien / toca cambiar) y el
+botón «Se me ha caído el parche». Para **actualizar**, deslice la pantalla hacia abajo
+(o ⚙️ → Actualizar). El resto está en el botón **⚙️** de arriba a la derecha:
+
+- **Actualizar**.
+- **Idioma**: los botones **Castellano / Català** cambian el idioma solo en ese
+  teléfono (por defecto, el que eligió el administrador).
+- **Para la familia: alarma y voz**.
+- **Versión** de la app y del servidor.
 
 **Ubicación**: la primera vez que empiece un cambio, el iPhone preguntará si deja usar
 la ubicación: responda **Permitir**. Se guarda dónde se puso el parche (en el
 historial, columna «Lugar», con enlace al mapa). Si no la da o no hay señal, el cambio
 se guarda igual, sin lugar. Se puede desactivar en **Ajustes**.
 
-**Versión**: abajo del todo, en el inicio, pone la versión de la app (web) y la del
-servidor que usa ese teléfono. Si salen en naranja es que no coinciden: falta publicar
+**Versión** (⚙️): la de la app (web) y la del servidor que usa ese teléfono. Si no
+coinciden, el botón ⚙️ lleva un punto naranja y el texto sale en naranja: falta publicar
 el servidor o el teléfono aún no ha cargado la web nueva (cierre la app y ábrala otra
 vez). El pie del panel también muestra las dos.
 

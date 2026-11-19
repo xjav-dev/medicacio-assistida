@@ -1,5 +1,5 @@
 /* app.css — Medicació assistida · app de la usuària. Lletra gran, contrast alt, un botó principal per pantalla.
-   Copyright (c) 2026 xjav-dev · SPDX-License-Identifier: EUPL-1.2 · Versió: 0.9.2 · 2026-11-16 */
+   Copyright (c) 2026 xjav-dev · SPDX-License-Identifier: EUPL-1.2 · Versió: 0.11.0 · 2026-11-19 */
 :root {
   --verd: #1C7981; --verd-fosc: #125960; --text: #1f2326; --gris: #5b6166; --fons: #ffffff;
   --taronja: #B35F2C; --taronja-fons: #fff1e6; --be-fons: #e8f5ef; --be: #1d6b47; --vora: #d5d9dc;
@@ -148,3 +148,16 @@ svg.cos { width: 100%; height: auto; display: block; }
 /* Versions (seguiment de què fa servir el telèfon) */
 .versions { text-align: center; color: #6b6d70; font-size: 14px; margin: 24px 0 8px; }
 .versions.diferents { color: #B35F2C; }
+
+/* Pantalla inicial: capçalera amb el botó d'opcions */
+.capcalera { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.capcalera h1 { margin-bottom: 8px; }
+.boto-opcions { position: relative; flex: none; width: 48px; height: 48px; border-radius: 50%; border: 1px solid #d5dadb;
+  background: #fff; font-size: 24px; line-height: 1; cursor: pointer; }
+.boto-opcions.marca::after { content: ''; position: absolute; top: 4px; right: 4px; width: 10px; height: 10px;
+  border-radius: 50%; background: #DA7E45; }
+.pista-actualitza { text-align: center; color: #6b6d70; font-size: 15px; margin-top: 24px; }
+.opcions .boto, .opcions .tria-idioma { margin-bottom: 16px; }
+.estira { position: fixed; top: 0; left: 50%; margin-left: -130px; width: 260px; text-align: center; z-index: 50;
+  background: #fff; color: #1C7981; border: 1px solid #d5dadb; border-radius: 0 0 16px 16px; padding: 10px 8px; font-size: 17px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08); }
