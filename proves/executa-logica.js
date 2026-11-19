@@ -328,6 +328,23 @@ comprova(r.ok && quedenDemo === 0 && quedenReals === nReals && r.dades.fotos >= 
 comprova(env.post('apiCopies', {}, tAdmin).dades.some((c) => c.motiu === 'abans d\'esborrar l\'historial'), 'abans d\'esborrar es fa una còpia');
 comprova(g.llegeixFull_('Auditoria').some((a) => a.accio === 'esborra l\'historial'), 'l\'esborrat queda a l\'auditoria');
 
+// Passar a producció: esborrar-ho tot i registrar el pegat que porta (zona A) → el primer canvi real va a la B
+const pTot = env.post('apiPreparaEsborrat', { abast: 'tot', fotos: false }, tAdmin).dades;
+r = env.post('apiEsborraHistorial', { testimoni: pTot.testimoni, frase: pTot.frase }, tAdmin);
+comprova(r.ok && g.llegeixFull_('Registre').length === 0, 'esborra tot l\'historial', r.error);
+const fa2h = g.clau_(new Date(Date.now() - 2 * 3600000)), araC = g.clau_(new Date()), dema = g.clau_(new Date(Date.now() + 86400000));
+comprova(env.post('apiDesaEstat', { estat: 'ACTIU', dataInici: araC, parxes: [{ medicament: medId, zona: 'A' }], dataParxe: dema }, tAdmin).error.codi === 'DADES', 'el pegat actual no pot ser del futur');
+comprova(env.post('apiDesaEstat', { estat: 'ACTIU', dataInici: araC, parxes: [{ medicament: medId, zona: 'Z' }], dataParxe: fa2h }, tAdmin).error.codi === 'DADES', 'zona del pegat actual no vàlida');
+comprova(g.llegeixFull_('Registre').length === 0, 'si falla, no es registra res');
+r = env.post('apiDesaEstat', { estat: 'ACTIU', dataInici: araC, parxes: [{ medicament: medId, zona: 'A' }], dataParxe: fa2h.replace(' ', 'T') }, tAdmin);
+const ini = g.llegeixFull_('Registre');
+comprova(r.ok && ini.length === 1 && ini[0].tipus === 'inicial' && ini[0].mode === 'REAL' && ini[0].zona === 'A' && ini[0].fi === fa2h + ':00',
+  'en passar a ACTIU es registra el pegat que porta', r.error || ini);
+r = env.post('apiIniciaCanvi', { medicament: medId, tipus: 'caiguda' }, tDis);
+comprova(r.ok && r.dades.mode === 'REAL' && r.dades.zonaSuggerida === 'B' && r.dades.zones.find((z) => z.codi === 'A').disponible === false,
+  'el primer canvi real proposa la B i la A queda bloquejada', r.error || r.dades.zonaSuggerida);
+comprova(env.post('apiEstatApp', {}, tDis).dades.medicaments[0].pendent === null, 'el pegat inicial no deixa cap canvi pendent');
+
 // Enllaç de la drecera
 const idDis0 = env.post('apiConfig', {}, tAdmin).dades.dispositius[0].id;
 comprova(env.post('apiEnllacDispositiu', { id: idDis0 }, tAna).error.codi === 'SENSE_PERMIS', 'una supervisora no pot obtenir l\'enllaç de la drecera');

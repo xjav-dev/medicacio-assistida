@@ -1,6 +1,6 @@
 # Manual — Medicación asistida
 
-Versión 0.11.0 · 2026-11-19
+Versión 0.12.0 · 2026-11-19
 
 ## 1. Qué es
 
@@ -112,6 +112,15 @@ recuerda al guardar.
   pantallas, aviso de no ponerse ningún parche en los pasos de colocación, registros
   aparte (Historial → Prácticas) y sin avisos de retraso.
 - Cuando ella lo domine: **Inicio → Pasar a ACTIVO** y elija desde cuándo cuenta.
+  En «Parche que lleva puesto ahora» indique la zona y cuándo se lo puso: el primer
+  cambio real irá a la zona siguiente (si lleva la A, a la B) y esa zona no se repetirá
+  en los días configurados. Queda en el historial como «Parche inicial (panel)».
+
+**Pasar a producción después de las pruebas** (en este orden):
+1. Si el sistema está ACTIVO: **Inicio → Volver a modo práctica**.
+2. **Copias → Empezar de cero**: «Todo el historial (reales y prácticas)», con las fotos.
+3. **Inicio → Pasar a ACTIVO**: «Empieza a contar desde» ahora y, en «Parche que lleva
+   puesto ahora», la zona y la hora en que se lo puso.
   La práctica desaparece por completo del teléfono.
 - Para repasar más adelante: **Volver a modo práctica**.
 

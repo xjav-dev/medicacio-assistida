@@ -8,11 +8,24 @@
  * Copyright (c) 2026 xjav-dev
  * Llicència: EUPL-1.2 — vegeu LLICENCIA.txt
  * SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.11.0 · 2026-11-19
+ * Versió: 0.12.0 · 2026-11-19
  */
 
 /** @type {Array<{versio: string, data: string, resum: string, migracio: string, canvis: Object<string, string[]>}>} */
 const HISTORIAL = [
+  {
+    "versio": "0.12.0",
+    "data": "2026-11-19",
+    "resum": "En passar a ACTIU es pot registrar el pegat que porta, perquè el primer canvi real vagi a la zona següent.",
+    "migracio": "No (esquema 3; valor nou «inicial» a Registre.tipus)",
+    "canvis": {
+      "Afegit": [
+        "«Pasar a ACTIVO»: apartat «Parche que lleva puesto ahora» (zona i hora). Es desa com a canvi real «inicial» sense avisos; la rotació continua a partir d'aquí (A → B…) i la zona queda bloquejada els dies configurats.",
+        "Historial: tipus «Parche inicial (panel)».",
+        "Manual: ordre per passar a producció després de les proves."
+      ]
+    }
+  },
   {
     "versio": "0.11.0",
     "data": "2026-11-19",

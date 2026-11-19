@@ -6,6 +6,16 @@ semàntic (MAJOR.MENOR.PEGAT).
 
 ## [Sense publicar]
 
+## [0.12.0] · 2026-11-19
+Resum: en passar a ACTIU es pot registrar el pegat que porta, perquè el primer canvi real vagi a la zona següent.
+Migració d'esquema: no (esquema 3; valor nou «inicial» a Registre.tipus).
+
+### Afegit
+- «Pasar a ACTIVO»: apartat «Parche que lleva puesto ahora» (zona i hora). Es desa com a canvi real «inicial» sense avisos; la rotació continua a partir d'aquí (A → B…) i la zona queda bloquejada els dies configurats.
+- Historial: tipus «Parche inicial (panel)».
+- Manual: ordre per passar a producció després de les proves.
+
+
 ## [0.11.0] · 2026-11-19
 Resum: pantalla inicial de l'app més neta; la resta, darrere un botó ⚙️.
 Migració d'esquema: no (esquema 3).

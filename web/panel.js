@@ -2,7 +2,7 @@
  * panel.js — Medicació assistida · panell de supervisors i administradors.
  * Tot es fa per l'API: ningú no obre la Hoja de càlcul.
  * Copyright (c) 2026 xjav-dev · SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.10.0 · 2026-11-16
+ * Versió: 0.12.0 · 2026-11-19
  */
 (function () {
   'use strict';
@@ -325,12 +325,26 @@
     if (nou === 'ACTIU') {
       var ara = new Date();
       var data = h('input', { type: 'datetime-local', value: C.clau(ara).replace(' ', 'T') });
+      // Pegat que porta ara: perquè el primer canvi real vagi a la zona següent i no torni a començar per la A.
+      var meds = st.cfg.medicaments.filter(function (m) { return m.actiu !== false && (m.zones || []).some(function (z) { return z.activa !== false; }); });
+      var tries = meds.map(function (m) {
+        var sel = h('select', {}, h('option', { value: '' }, 'No lo registro'),
+          m.zones.filter(function (z) { return z.activa !== false; }).map(function (z) { return h('option', { value: z.codi }, 'Zona ' + z.codi + ' · ' + z.nom_es); }));
+        return { med: m, sel: sel };
+      });
+      var dataParxe = h('input', { type: 'datetime-local', value: C.clau(ara).replace(' ', 'T') });
       modal('Pasar a ACTIVO', h('div', {},
         h('p', {}, 'Desde ese momento los cambios cuentan de verdad, se envían avisos de retraso y la práctica desaparece del teléfono.'),
         camp('Empieza a contar desde', data),
+        tries.length ? h('fieldset', { class: 'parxe-actual' }, h('legend', {}, 'Parche que lleva puesto ahora'),
+          tries.map(function (t) { return camp(meds.length > 1 ? t.med.nom_es : 'Zona', t.sel); }),
+          camp('Se lo puso el', dataParxe),
+          h('p', { class: 'ajuda' }, 'Así el primer cambio real irá a la zona siguiente (si lleva la A, a la B) y no repetirá esa zona en los días configurados. Queda en el historial como «Parche inicial».')) : null,
         h('p', { class: 'ajuda' }, 'Antes, compruebe que la alarma del iPhone suena los mismos días y a la misma hora que la medicación.')),
       [{ text: 'Cancelar' }, { text: 'Pasar a ACTIVO', classe: 'primari', accio: async function () {
-        st.cfg = await crida('apiDesaEstat', { estat: 'ACTIU', dataInici: data.value.replace('T', ' ') });
+        var parxes = tries.filter(function (t) { return t.sel.value; }).map(function (t) { return { medicament: t.med.id, zona: t.sel.value }; });
+        st.cfg = await crida('apiDesaEstat', { estat: 'ACTIU', dataInici: data.value.replace('T', ' '),
+          parxes: parxes, dataParxe: parxes.length ? dataParxe.value.replace('T', ' ') : '' });
         avis('Sistema activo.'); render();
       } }]);
     } else {
@@ -387,7 +401,7 @@
           h('td', { 'data-et': 'Previsto' }, x.dataProgramada ? dataHumana(x.dataProgramada) : '—'),
           h('td', { 'data-et': 'Hecho' }, x.fi ? dataHumana(x.fi) : '—'),
           h('td', { 'data-et': 'Estado' }, insignia(x)),
-          h('td', { 'data-et': 'Tipo' }, x.tipus === 'caiguda' ? 'Parche caído' : x.tipus === 'sortida' ? 'Salida · ' + String(x.notes || '').replace(/^pas (\d+) de (\d+)/, 'paso $1 de $2').replace('pegat caigut', 'parche caído') : 'Programado'),
+          h('td', { 'data-et': 'Tipo' }, x.tipus === 'caiguda' ? 'Parche caído' : x.tipus === 'inicial' ? 'Parche inicial (panel)' : x.tipus === 'sortida' ? 'Salida · ' + String(x.notes || '').replace(/^pas (\d+) de (\d+)/, 'paso $1 de $2').replace('pegat caigut', 'parche caído') : 'Programado'),
           h('td', { 'data-et': 'Anterior quitado' }, x.anteriorRetirat === 'si' ? 'Sí' : x.anteriorRetirat === 'no portava' ? '⚠️ No llevaba' : x.anteriorRetirat === 'caiguda' ? '(se cayó)' : '—'),
           h('td', { 'data-et': 'Zona' }, x.zona ? x.zona + ' · ' + x.nomZona : '—'),
           h('td', { 'data-et': 'Foto' }, x.teFoto ? boto('📷 Ver', function () { veuFoto(x); }, 'petit') : (x.senseFotoMotiu ? 'Sin foto: ' + x.senseFotoMotiu : '—')),

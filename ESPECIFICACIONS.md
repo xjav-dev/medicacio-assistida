@@ -1,6 +1,6 @@
 # Especificaciones — Medicación asistida (`medicacio-assistida`, código `MEDA`)
 
-Versión del documento: 0.11.0 · 2026-11-19
+Versión del documento: 0.12.0 · 2026-11-19
 
 ## 1. Objetivo
 
@@ -205,6 +205,10 @@ Secretos en Script Properties: `SECRET_HMAC`, `TELEGRAM_TOKEN`,
   abajo (gesto propio, porque la app instalada en el iPhone no lo trae) y también desde
   ⚙️; idioma, alarma y voz, y versiones van detrás del botón ⚙️, que lleva un punto
   naranja si las versiones no coinciden.
+- **DD-027 Parche inicial (0.12.0).** Al pasar a ACTIVO se puede registrar el parche
+  que lleva (zona y hora, máx. 14 días atrás y antes de empezar a contar) como un
+  registro REAL `tipus = inicial`, sin foto ni avisos. Así la rotación de zonas sigue
+  después de borrar el historial. No cuenta para el calendario, la racha ni los avisos.
 - **DD-023 Bip (0.8.0).** Sonido generado con Web Audio (sin archivos), preparado en
   el toque de «Empezar a contar» porque el iPhone solo permite sonido tras un toque.
 

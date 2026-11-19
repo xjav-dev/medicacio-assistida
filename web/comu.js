@@ -1,7 +1,7 @@
 /**
  * comu.js — Medicació assistida · utilitats compartides per l'app i el panell.
  * Copyright (c) 2026 xjav-dev · SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.11.0 · 2026-11-19
+ * Versió: 0.12.0 · 2026-11-19
  */
 (function () {
   'use strict';
@@ -124,7 +124,7 @@
   }
 
   /** Versió de la web (app i panell). Ha de coincidir amb VERSIO del servidor i amb sw.js (ho comproven les proves). */
-  var VERSIO_WEB = '0.11.0';
+  var VERSIO_WEB = '0.12.0';
 
   window.Comu = { versioWeb: VERSIO_WEB, api: api, h: h, buida: buida, magatzem: magatzem, uuid: uuid, deClau: deClau, clau: clau, dos: dos,
     servidor: servidor, llegeixServidor: llegeixServidor, desaServidor: desaServidor, urlApi: urlApi,

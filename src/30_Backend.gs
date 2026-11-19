@@ -9,7 +9,7 @@
  * Copyright (c) 2026 xjav-dev
  * Llicència: EUPL-1.2 — vegeu LLICENCIA.txt
  * SPDX-License-Identifier: EUPL-1.2
- * Versió: 0.10.0 · 2026-11-16
+ * Versió: 0.12.0 · 2026-11-19
  */
 
 function configPanel_() {
@@ -43,9 +43,42 @@ function desaEstat_(ctx, dades) {
     if (!inici) throw errorApp_('DADES', 'Data d\'inici no vàlida.');
     canvis.dataInici = clau_(inici);
   }
-  ambBloqueig_(function () { desaConfig_(canvis); });
+  var parxes = estat === 'ACTIU' ? parxesActuals_(dades, inici) : [];
+  ambBloqueig_(function () {
+    desaConfig_(canvis);
+    parxes.forEach(function (p) { afegeixFila_('Registre', p); });
+  });
   anotaAuditoria_(ctx.nom, 'canvia l\'estat', estat + (canvis.dataInici ? ' des de ' + canvis.dataInici : ''));
+  parxes.forEach(function (p) { anotaAuditoria_(ctx.nom, 'registra el pegat que porta', p.medicament + ' · zona ' + p.zona + ' · ' + p.fi); });
   return configPanel_();
+}
+
+/**
+ * Pegat que la usuària porta en passar a ACTIU (dades.parxes = [{medicament, zona}], dades.dataParxe):
+ * es desa com un canvi real «inicial» perquè la rotació de zones continuï a partir d'aquí
+ * (sense historial, l'app tornaria a proposar la primera zona). No avisa ningú.
+ */
+function parxesActuals_(dades, inici) {
+  var llista = Array.isArray(dades.parxes) ? dades.parxes.filter(function (p) { return p && p.zona; }) : [];
+  if (!llista.length) return [];
+  var quan = deClau_(String(dades.dataParxe || '').replace('T', ' ').slice(0, 16));
+  var ara = new Date();
+  if (!quan) throw errorApp_('DADES', 'Falta la data en què es va posar el pegat.');
+  if (quan > ara || quan > inici) throw errorApp_('DADES', 'El pegat actual s\'ha d\'haver posat abans de començar a comptar.');
+  if (ara - quan > 14 * 86400000) throw errorApp_('DADES', 'El pegat actual no pot ser de fa més de 14 dies.');
+  var fi = clau_(quan) + ':00';
+  var vistos = {};
+  return llista.map(function (p) {
+    var med = medicament_(String(p.medicament || ''));
+    if (!med) throw errorApp_('DADES', 'Medicament desconegut.');
+    if (vistos[med.id]) throw errorApp_('DADES', 'Medicament repetit.');
+    vistos[med.id] = true;
+    var zona = med.zones.filter(function (z) { return z.codi === p.zona && z.activa !== false; })[0];
+    if (!zona) throw errorApp_('DADES', 'Zona no vàlida.');
+    return { id: nouId_('r'), medicament: med.id, mode: 'REAL', tipus: 'inicial', dataProgramada: '', inici: fi, fi: fi,
+      estat: 'completat', anteriorRetirat: '', zona: zona.codi, fotoId: '', senseFotoMotiu: '', dispositiu: '',
+      idClient: nouId_('panel'), notes: 'registrat des del panell en passar a ACTIU' };
+  });
 }
 
 function desaConfigGeneral_(ctx, dades) {

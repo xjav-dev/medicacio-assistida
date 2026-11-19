@@ -1,6 +1,6 @@
 /* sw.js — Medicació assistida · desa l'app al telèfon perquè s'obri encara que no hi hagi connexió.
-   Les crides a l'API no es desen mai. Copyright (c) 2026 xjav-dev · SPDX-License-Identifier: EUPL-1.2 · Versió: 0.11.0 · 2026-11-19 */
-var VERSIO_CAU = 'meda-0.11.0';
+   Les crides a l'API no es desen mai. Copyright (c) 2026 xjav-dev · SPDX-License-Identifier: EUPL-1.2 · Versió: 0.12.0 · 2026-11-19 */
+var VERSIO_CAU = 'meda-0.12.0';
 var FITXERS = ['./', 'index.html', 'app.css', 'config.js', 'comu.js', 'textos-app.js', 'cos.js', 'app.js',
   'manifest.webmanifest', 'icones/icona-192.png', 'icones/apple-touch-icon.png'];
 
